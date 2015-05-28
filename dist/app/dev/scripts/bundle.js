@@ -101367,6 +101367,8 @@ module.exports = function (namespace) {
     var app = angular.module(fullname, ['ui.router', 'rx', 'LocalForageModule', 'js-data']);
     // inject:folders start
 
+    require('./services')(app);
+
     // inject:folders end
     require('./config')(app);
     require('./run')(app);
@@ -101389,7 +101391,7 @@ module.exports = function (namespace) {
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./config":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/config/index.js","./run":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/run/index.js","./views/home.html":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/views/home.html","angular":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular/angular.js","angular-localforage":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular-localforage/dist/angular-localForage.min.js","angular-rx":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular-rx/dist/rx.angular.js","angular-ui-router":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular-ui-router/release/angular-ui-router.js","faker":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/Faker/index.js","js-data":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/js-data/dist/js-data.js","js-data-angular":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/js-data-angular/dist/js-data-angular.js","js-data-localforage":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/js-data-localforage/dist/js-data-localforage.js","js-data-schema":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/js-data-schema/dist/js-data-schema.js","localforage":"/Users/rai/dev/rx-jsdata-angular-demo/node_modules/localforage/src/localforage.js","lodash":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/lodash/lodash.min.js","moment":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/moment/min/moment.min.js","rx":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/rxjs/dist/rx.all.js"}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/run/index.js":[function(require,module,exports){
+},{"./config":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/config/index.js","./run":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/run/index.js","./services":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/index.js","./views/home.html":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/views/home.html","angular":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular/angular.js","angular-localforage":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular-localforage/dist/angular-localForage.min.js","angular-rx":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular-rx/dist/rx.angular.js","angular-ui-router":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular-ui-router/release/angular-ui-router.js","faker":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/Faker/index.js","js-data":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/js-data/dist/js-data.js","js-data-angular":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/js-data-angular/dist/js-data-angular.js","js-data-localforage":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/js-data-localforage/dist/js-data-localforage.js","js-data-schema":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/js-data-schema/dist/js-data-schema.js","localforage":"/Users/rai/dev/rx-jsdata-angular-demo/node_modules/localforage/src/localforage.js","lodash":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/lodash/lodash.min.js","moment":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/moment/min/moment.min.js","rx":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/rxjs/dist/rx.all.js"}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/run/index.js":[function(require,module,exports){
 /**
  * rjadCommonRun
  * Description
@@ -101418,6 +101420,124 @@ module.exports = function setupJSDataAndAdapters(app) {
     _setupJSDataAndAdapters.$inject = ['DS', 'DSLocalForageAdapter', '$log', '$window', 'lodash'];
 
     return app.run(_setupJSDataAndAdapters);
+};
+
+},{}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/comment.service.js":[function(require,module,exports){
+'use strict';
+var servicename = 'comment';
+
+module.exports = function (app) {
+
+    var dependencies = [];
+
+    function service() {
+        var add = function add(a, b) {
+            return a + b;
+        };
+
+        return {
+            add: add
+        };
+    }
+    service.$inject = dependencies;
+    app.factory(app.name + '.' + servicename, service);
+};
+
+},{}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/core-data.service.js":[function(require,module,exports){
+'use strict';
+var servicename = 'coreData';
+
+module.exports = function (app) {
+
+    var dependencies = [];
+
+    function service() {
+        var add = function add(a, b) {
+            return a + b;
+        };
+
+        return {
+            add: add
+        };
+    }
+    service.$inject = dependencies;
+    app.factory(app.name + '.' + servicename, service);
+};
+
+},{}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/ds-comment.service.js":[function(require,module,exports){
+'use strict';
+var servicename = 'dsComment';
+
+module.exports = function (app) {
+
+    var dependencies = [];
+
+    function service() {
+        var add = function add(a, b) {
+            return a + b;
+        };
+
+        return {
+            add: add
+        };
+    }
+    service.$inject = dependencies;
+    app.factory(app.name + '.' + servicename, service);
+};
+
+},{}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/ds-post.service.js":[function(require,module,exports){
+'use strict';
+var servicename = 'dsPost';
+
+module.exports = function (app) {
+
+    var dependencies = [];
+
+    function service() {
+        var add = function add(a, b) {
+            return a + b;
+        };
+
+        return {
+            add: add
+        };
+    }
+    service.$inject = dependencies;
+    app.factory(app.name + '.' + servicename, service);
+};
+
+},{}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/index.js":[function(require,module,exports){
+'use strict';
+
+module.exports = function (app) {
+    // inject:start
+    require('./comment.service')(app);
+    require('./core-data.service')(app);
+    require('./ds-comment.service')(app);
+    require('./ds-post.service')(app);
+    require('./post.service')(app);
+    // inject:end
+};
+
+},{"./comment.service":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/comment.service.js","./core-data.service":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/core-data.service.js","./ds-comment.service":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/ds-comment.service.js","./ds-post.service":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/ds-post.service.js","./post.service":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/post.service.js"}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/post.service.js":[function(require,module,exports){
+'use strict';
+var servicename = 'post';
+
+module.exports = function (app) {
+
+    var dependencies = [];
+
+    function service() {
+        var add = function add(a, b) {
+            return a + b;
+        };
+
+        return {
+            add: add
+        };
+    }
+    service.$inject = dependencies;
+    app.factory(app.name + '.' + servicename, service);
 };
 
 },{}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/views/home.html":[function(require,module,exports){

@@ -23,6 +23,8 @@ module.exports = function(namespace) {
     var app = angular.module(fullname, ['ui.router', 'rx', 'LocalForageModule', 'js-data']);
     // inject:folders start
 
+    require('./services')(app);
+
     // inject:folders end
     require('./config')(app);
     require('./run')(app);
