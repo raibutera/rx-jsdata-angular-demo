@@ -1,0 +1,14 @@
+{
+  "generator-angular-famous-ionic": {
+    "filenameCase": "snake",
+    "filenameSuffix": true,
+    "appname": "rjad",
+    "clientFolder": "src",
+    "ionic": false,
+    "famous": false,
+    "ngCordova": false,
+    "fontawesome": true,
+    "bootstrap": true,
+    "material": false
+  }
+}
