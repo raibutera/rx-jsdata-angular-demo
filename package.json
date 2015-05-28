@@ -106,7 +106,20 @@
     "angular-resource": "./bower_components/angular-resource/angular-resource.js",
     "lbServices": "./client/scripts/lbServices.js",
     "angular-sanitize": "./bower_components/angular-sanitize/angular-sanitize.js",
-    "angular-bootstrap": "./bower_components/angular-bootstrap/ui-bootstrap-tpls.js"
+    "angular-bootstrap": "./bower_components/angular-bootstrap/ui-bootstrap-tpls.js",
+    "lodash": "./bower_components/lodash/lodash.min.js",
+    "moment": "./bower_components/moment/min/moment.min.js",
+    "faker": "./bower_components/Faker/index.js",
+    "bluebird": "./src/lib/bluebird.js",
+    "js-data-schema": "./bower_components/js-data-schema/dist/js-data-schema.js",
+    "js-data-schema-rules": "./bower_components/js-data-schema-rules/index.js",
+    "js-data": "./bower_components/js-data/dist/js-data.js",
+    "js-data-localforage": "./bower_components/js-data-localforage/dist/js-data-localforage.js",
+    "js-data-angular": "./bower_components/js-data-angular/dist/js-data-angular.js",
+    "angular-localforage": "./bower_components/angular-localforage/dist/angular-localForage.min.js",
+    "package-json": "./package.json",
+    "rx": "./bower_components/rxjs/dist/rx.all.js",
+    "angular-rx" : "./bower_components/angular-rx/dist/rx.angular.js"
   },
   "browserify": {
     "transform": [
@@ -136,19 +149,42 @@
         "angular"
       ]
     },
-    "angular-resource": {
-      "depends": [
-        "angular"
-      ]
-    },
-    "lbServices": {
-      "depends": [
-        "angular-resource"
-      ]
-    },
     "angular-ui-router": {
       "depends": [
         "angular"
+      ]
+    },
+    "angular-localforage": {
+      "depends": [
+        "angular:angular",
+        "localforage:localforage"
+      ]
+    },
+    "bluebird":{
+      "exports": "global:Promise"
+    },
+    "js-data-schema":{
+        "exports": "jsDataSchema"
+      },
+    "js-data-localforage":{
+      "exports": "DSLocalForageAdapter",
+      "depends": [
+        "bluebird:Promise",
+        "js-data:JSData",
+        "localforage"
+      ]
+    },
+    "js-data": {
+      "exports": "JSData",
+      "depends": [
+        "bluebird:Promise",
+        "js-data-schema"
+      ]
+    },
+    "js-data-angular":{
+      "depends":[
+        "js-data",
+        "js-data-localforage:DSLocalForageAdapter"
       ]
     },
     "angular-bootstrap": {
