@@ -101300,14 +101300,14 @@ module.exports = function rjadCommonConfig(app) {
 'use strict';
 
 module.exports = function configureJSData(app) {
-  function _configureJSData(_, DSProvider, DSLocalForageAdapterProvider) {
-    DSProvider.defaults.defaultAdapter = 'DSLocalForageAdapter';
-    DSLocalForageAdapterProvider.defaults.basePath = 'JSData';
-  }
+    function _configureJSData(_, DSProvider, DSLocalForageAdapterProvider) {
+        DSProvider.defaults.defaultAdapter = 'DSLocalForageAdapter';
+        DSLocalForageAdapterProvider.defaults.basePath = 'JSData';
+    }
 
-  _configureJSData.$inject = ['lodash', 'DSProvider', 'DSLocalForageAdapterProvider'];
+    _configureJSData.$inject = ['lodash', 'DSProvider', 'DSLocalForageAdapterProvider'];
 
-  return app.config(_configureJSData);
+    return app.config(_configureJSData);
 };
 
 },{}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/config/localforage.config.js":[function(require,module,exports){
@@ -101321,17 +101321,17 @@ module.exports = function configureJSData(app) {
 module.exports = function configureLocalForage(app) {
     function _configureLocalForage($localForageProvider) {
         var dataConfig = {
-            name: 'rx-jsdata-angular-demo',
+            name: 'rjaDemo',
             storeName: 'keyvaluepairs',
             description: 'demo data'
         };
 
         $localForageProvider.config({
             // driver      : 'localStorageWrapper', // if you want to force a driver
-            name: dataConfig.name, // name of the database and prefix for your data, it is "lf" by default
+            name: 'rjaDemo', // name of the database and prefix for your data, it is "lf" by default
             // version     : 1.0, // version of the database, you shouldn't have to use this
-            storeName: dataConfig.storeName, // name of the table
-            description: dataConfig.description
+            storeName: 'lolumad', // name of the table
+            description: 'demo data'
         });
     }
 
@@ -101452,7 +101452,25 @@ module.exports = function (namespace) {
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./config":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/config/index.js","./controllers":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/controllers/index.js","./run":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/run/index.js","./services":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/index.js","./views/home.html":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/views/home.html","./views/view-post.html":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/views/view-post.html","angular":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular/angular.js","angular-localforage":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular-localforage/dist/angular-localForage.min.js","angular-rx":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular-rx/dist/rx.angular.js","angular-ui-router":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular-ui-router/release/angular-ui-router.js","faker":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/Faker/index.js","js-data":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/js-data/dist/js-data.js","js-data-angular":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/js-data-angular/dist/js-data-angular.js","js-data-localforage":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/js-data-localforage/dist/js-data-localforage.js","js-data-schema":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/js-data-schema/dist/js-data-schema.js","localforage":"/Users/rai/dev/rx-jsdata-angular-demo/node_modules/localforage/src/localforage.js","lodash":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/lodash/lodash.min.js","moment":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/moment/min/moment.min.js","rx":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/rxjs/dist/rx.all.js"}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/run/index.js":[function(require,module,exports){
+},{"./config":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/config/index.js","./controllers":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/controllers/index.js","./run":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/run/index.js","./services":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/index.js","./views/home.html":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/views/home.html","./views/view-post.html":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/views/view-post.html","angular":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular/angular.js","angular-localforage":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular-localforage/dist/angular-localForage.min.js","angular-rx":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular-rx/dist/rx.angular.js","angular-ui-router":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular-ui-router/release/angular-ui-router.js","faker":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/Faker/index.js","js-data":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/js-data/dist/js-data.js","js-data-angular":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/js-data-angular/dist/js-data-angular.js","js-data-localforage":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/js-data-localforage/dist/js-data-localforage.js","js-data-schema":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/js-data-schema/dist/js-data-schema.js","localforage":"/Users/rai/dev/rx-jsdata-angular-demo/node_modules/localforage/src/localforage.js","lodash":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/lodash/lodash.min.js","moment":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/moment/min/moment.min.js","rx":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/rxjs/dist/rx.all.js"}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/run/bootstrap-data.run.js":[function(require,module,exports){
+/**
+ * bootstrapData
+ * Description
+ */
+
+'use strict';
+
+module.exports = function bootstrapData(app) {
+    function _bootstrapData($log, Post) {
+        $log.info('bootstrapping data');
+    }
+
+    _bootstrapData.$inject = ['$log', app.name + '.Post'];
+
+    return app.run(_bootstrapData);
+};
+
+},{}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/run/index.js":[function(require,module,exports){
 /**
  * rjadCommonRun
  * Description
@@ -101462,9 +101480,10 @@ module.exports = function (namespace) {
 
 module.exports = function rjadCommonRun(app) {
   require('./jsdata.run')(app);
+  require('./bootstrap-data.run')(app);
 };
 
-},{"./jsdata.run":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/run/jsdata.run.js"}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/run/jsdata.run.js":[function(require,module,exports){
+},{"./bootstrap-data.run":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/run/bootstrap-data.run.js","./jsdata.run":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/run/jsdata.run.js"}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/run/jsdata.run.js":[function(require,module,exports){
 /**
  * setupJSDataAndAdapters
  * Description
@@ -101475,7 +101494,7 @@ module.exports = function rjadCommonRun(app) {
 module.exports = function setupJSDataAndAdapters(app) {
     function _setupJSDataAndAdapters(DS, DSLocalForageAdapter, $log, $window, _) {
         $log.debug('setting up js-data localForage adapter and bootstrapping JSData models');
-        DS.registerAdapter('localForage', DSLocalForageAdapter, { 'default': true });
+        DS.registerAdapter('DSLocalForageAdapter', DSLocalForageAdapter, { 'default': true });
     }
 
     _setupJSDataAndAdapters.$inject = ['DS', 'DSLocalForageAdapter', '$log', '$window', 'lodash'];
@@ -101489,7 +101508,7 @@ var servicename = 'Comment';
 
 module.exports = function (app) {
 
-    var dependencies = ['lodash', 'rx', '$log', app.namespace + '.DSComment', 'Bluebird'];
+    var dependencies = ['lodash', 'rx', '$log', app.name + '.DSComment', 'Bluebird'];
 
     function service(_, rx, $log, DSComment, Bluebird) {
         var add = function add(a, b) {
@@ -101500,6 +101519,7 @@ module.exports = function (app) {
             add: add
         };
     }
+
     service.$inject = dependencies;
     app.factory(app.name + '.' + servicename, service);
 };
@@ -101509,7 +101529,7 @@ module.exports = function (app) {
 var servicename = 'coreData';
 
 module.exports = function (app) {
-    var dependencies = ['lodash', 'rx', 'Bluebird', '$log', app.namespace + '.Comment', app.namespace + '.Post'];
+    var dependencies = ['lodash', 'rx', 'Bluebird', '$log', app.name + '.Comment', app.name + '.Post'];
 
     function service(_, rx, Bluebird, $log, Comment, Post) {
         var add = function add(a, b) {
@@ -101520,6 +101540,7 @@ module.exports = function (app) {
             add: add
         };
     }
+
     service.$inject = dependencies;
     app.factory(app.name + '.' + servicename, service);
 };
@@ -101554,14 +101575,47 @@ module.exports = function (app) {
     var dependencies = ['DS', 'lodash', 'rx', '$log'];
 
     function service(DS, _, rx, $log) {
-        var add = function add(a, b) {
-            return a + b;
-        };
+        return DS.defineResource({
+            name: 'Post',
+            idAttribute: 'id',
+            endpoint: '/post',
+            schema: {
+                id: {
+                    type: 'string',
+                    nullable: false
+                },
+                author: {
+                    type: 'string',
+                    nullable: false,
+                    minLength: 5,
+                    maxLength: 64
+                },
+                content: {
+                    type: 'string',
+                    nullable: false,
+                    minLength: 3,
+                    maxLength: 140
+                },
+                title: {
+                    type: 'string',
+                    nullable: false,
+                    minLength: 5,
+                    maxLength: 100
+                },
+                createdAt: {
+                    type: 'date',
+                    nullable: false
+                }
+            },
+            // basePath: 'http://myoverridingapp.com/api',
+            beforeDestroy: function beforeDestroy(resourceName, attrs, cb) {
 
-        return {
-            add: add
-        };
+                cb(null, attrs);
+            },
+            methods: {}
+        });
     }
+
     service.$inject = dependencies;
     app.factory(app.name + '.' + servicename, service);
 };
@@ -101585,17 +101639,51 @@ var servicename = 'Post';
 
 module.exports = function (app) {
 
-    var dependencies = ['lodash', 'rx', '$log', app.namespace + '.DSPost', 'Bluebird'];
+    var dependencies = ['lodash', 'rx', '$log', app.name + '.DSPost', 'Bluebird', 'moment', 'faker'];
 
-    function service(_, rx, $log, DSPost, Bluebird) {
-        var add = function add(a, b) {
-            return a + b;
+    function service(_, rx, $log, DSPost, Bluebird, moment, faker) {
+        var create = function create(input, createId) {
+            return new Promise(function (resolve, reject) {
+                if (!!input && input.author && input.content && input.title) {
+                    if (!!createId) {
+                        input.id = faker.random.uuid();
+                    }
+                    input.createdAt = moment().toDate();
+
+                    resolve(DSPost.create(input));
+                } else {
+                    reject('Post#create: missing/incomplete input');
+                }
+            });
         };
+
+        var fakesPromises = _.map([1, 2, 3, 4, 5], function (value, key, collection) {
+            $log.debug('creating fake ' + value);
+            var fake = {
+                author: faker.internet.email(),
+                content: faker.lorem.sentence(),
+                title: faker.company.bs()
+            };
+            return create(fake, true);
+        });
+
+        Promise.settle(fakesPromises).then(function (results) {
+            _.forEach(results, function (result, index, collection) {
+                if (result.isFulfilled()) {
+                    $log.debug('fake ' + index + ' fulfilled: ', result.value());
+                } else if (result.isRejected()) {
+                    $log.error('fake ' + index + ' rejected: ', result.reason());
+                } else {
+                    $log.error('fake ' + index + ' unknown!?: ', result);
+                }
+            });
+        });
 
         return {
-            add: add
+            create: create
         };
     }
+
     service.$inject = dependencies;
     app.factory(app.name + '.' + servicename, service);
 };

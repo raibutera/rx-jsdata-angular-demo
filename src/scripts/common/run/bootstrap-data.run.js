@@ -5,19 +5,12 @@
 
 'use strict';
 
-module.exports = function bootstrapData(app){
-    function _bootstrapData (wcDemoData, wcLog) {
-        var LOG = wcLog.createForModule(app.name, 'run', 'bootstrapData')(true);
-
-        wcDemoData.core.then(function(data) {
-            LOG.debug('bootstrapped data');
-        },
-        function(error) {
-          LOG.error('no data :x', error);
-        });
+module.exports = function bootstrapData(app) {
+    function _bootstrapData($log, Post) {
+        $log.info('bootstrapping data');
     }
 
-    _bootstrapData.$inject = [app.namespace.data + '.demoData', app.namespace.commonDemo + '.log'];
+    _bootstrapData.$inject = ['$log', app.name + '.Post'];
 
     return app.run(_bootstrapData);
 };

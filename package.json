@@ -154,6 +154,11 @@
         "angular"
       ]
     },
+    "localforage":{
+        "exports": [
+          "global:localforage"
+        ]
+      },
     "angular-localforage": {
       "depends": [
         "angular:angular",
@@ -171,7 +176,7 @@
       "depends": [
         "bluebird:Promise",
         "js-data:JSData",
-        "localforage"
+        "localforage:localforage"
       ]
     },
     "js-data": {
