@@ -2,14 +2,15 @@
 require('angular-ui-router');
 
 var Bluebird = require('bluebird');
-require('moment');
 var _ = require('lodash');
 var faker = require('faker');
 var Rx = require('rx');
 require('angular-rx');
 require('localforage');
 require('angular-localforage');
+require('js-data-schema');
 require('js-data');
+require('js-data-angular');
 require('js-data-localforage');
 
 var modulename = 'common';
@@ -19,7 +20,7 @@ module.exports = function(namespace) {
     var fullname = namespace + '.' + modulename;
 
     var angular = require('angular');
-    var app = angular.module(fullname, ['ui.router', 'LocalForageModule', 'js-data', 'rx']);
+    var app = angular.module(fullname, ['ui.router', 'rx', 'LocalForageModule', 'js-data']);
     // inject:folders start
 
     // inject:folders end
@@ -28,7 +29,7 @@ module.exports = function(namespace) {
 
     app.constant('lodash', _);
     app.constant('faker', faker);
-    app.constant('moment', moment);
+    app.constant('moment', require('moment'));
     app.constant('Bluebird', Bluebird);
 
     app.config(['$stateProvider', '$urlRouterProvider',
