@@ -3,9 +3,19 @@ var servicename = 'Post';
 
 module.exports = function (app) {
 
-    var dependencies = ['lodash', 'rx', '$log', app.name + '.DSPost', 'Bluebird', 'moment', 'faker'];
+    var dependencies = ['lodash', 'rx', '$log', app.name + '.DSPost', 'Bluebird', 'moment', 'faker', '$window'];
 
-    function service(_, rx, $log, DSPost, Bluebird, moment, faker) {
+    function service(_, rx, $log, DSPost, Bluebird, moment, faker, $window) {
+        var allSubject = new rx.BehaviorSubject([]);
+        var existing = new rx.Observable.from(DSPost.findAll);
+
+        var all = existing.merge(allSubject);
+
+        var updateState = function(input){
+            $log.debug('updating ' + servicename + ' BehaviourSubject with ', input);
+            return allSubject.onNext(input);
+        };
+
         var create = function (input, createId) {
             return new Promise(function (resolve, reject) {
                 if (!!input && input.author && input.content && input.title) {
@@ -14,39 +24,39 @@ module.exports = function (app) {
                     }
                     input.createdAt = moment().toDate();
 
-                    resolve(DSPost.create(input));
+                    DSPost.create(input)
+                        .then(function(createdPost){
+                            DSPost.findAll().then(function(newState) {
+                                updateState(newState);
+                                resolve(createdPost);
+                            },
+                            function(error) {
+                              reject(error);
+                            });
+
+                        }, function(err){
+                            reject(err);
+                        });
                 } else {
                     reject('Post#create: missing/incomplete input');
                 }
             });
         };
 
+        var lorem = faker.lorem.sentence();
+        var bs = faker.company.bs();
 
-        var fakesPromises = _.map([1, 2, 3, 4, 5], function (value, key, collection) {
-            $log.debug('creating fake ' + value);
-            var fake = {
-                author: faker.internet.email(),
-                content: faker.lorem.sentence(),
-                title: faker.company.bs()
-            };
-            return create(fake, true);
-        });
-
-
-        Promise.settle(fakesPromises).then(function (results) {
-            _.forEach(results, function (result, index, collection) {
-                if (result.isFulfilled()) {
-                    $log.debug('fake ' + index + ' fulfilled: ', result.value());
-                } else if (result.isRejected()) {
-                    $log.error('fake ' + index + ' rejected: ', result.reason());
-                } else {
-                    $log.error('fake ' + index + ' unknown!?: ', result);
-                }
-            });
+        create({author: faker.internet.email(), title: bs, content: lorem}, true).then(function(success) {
+            $log.info('created fake', success);
+        },
+        function(error) {
+            $log.error('could not create fake', error);
         });
 
         return {
-            create: create
+            create: create,
+            all: all,
+            updateState: updateState
         };
 
     }

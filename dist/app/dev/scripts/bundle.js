@@ -101348,14 +101348,26 @@ module.exports = function (app) {
     var fullname = app.name + '.' + controllername;
     /*jshint validthis: true */
 
-    var deps = [];
+    var deps = [app.name + '.Post', '$log', '$scope'];
 
-    function controller() {
+    function controller(Post, $log, $scope) {
         var vm = this;
         vm.controllername = fullname;
 
-        var activate = function activate() {};
-        activate();
+        vm.allPosts = [];
+
+        var timesUpdated = 0;
+
+        Post.all.subscribe(function (newState) {
+            timesUpdated++;
+            $log.info(fullname + ' got Posts state update #' + timesUpdated + ': ', newState);
+            vm.allPosts = newState;
+        }, function (err) {
+            timesUpdated++;
+            $log.error(fullname + ' got Posts state ERROR #' + timesUpdated + ': ', err);
+        }, function (completed) {
+            $log.error(fullname + ' Posts COMPLETED', completed);
+        });
     }
 
     controller.$inject = deps;
@@ -101640,16 +101652,33 @@ var servicename = 'placeholders';
 
 module.exports = function (app) {
 
-    var dependencies = [];
+    var dependencies = ['lodash', 'faker', 'moment', '$log', app.name + '.Post', app.name + '.Comment'];
 
-    function service() {
-        var add = function add(a, b) {
-            return a + b;
-        };
+    function service(_, faker, moment, $log, Post, Comment) {
+        var fakesPromises = _.map([1, 2, 3, 4, 5], function (value, key, collection) {
+            $log.debug('creating fake ' + value);
+            var fake = {
+                author: faker.internet.email(),
+                content: faker.lorem.sentence(),
+                title: faker.company.bs()
+            };
+            return Post.create(fake, true);
+        });
 
-        return {
-            add: add
-        };
+        Promise.settle(fakesPromises).then(function (results) {
+            _.forEach(results, function (result, index, collection) {
+                if (result.isFulfilled()) {
+                    $log.debug('fake ' + index + ' fulfilled: ', result.value());
+                    Post.updateState(result.value());
+                } else if (result.isRejected()) {
+                    $log.error('fake ' + index + ' rejected: ', result.reason());
+                } else {
+                    $log.error('fake ' + index + ' unknown!?: ', result);
+                }
+            });
+        });
+
+        return {};
     }
     service.$inject = dependencies;
     app.factory(app.name + '.' + servicename, service);
@@ -101661,9 +101690,19 @@ var servicename = 'Post';
 
 module.exports = function (app) {
 
-    var dependencies = ['lodash', 'rx', '$log', app.name + '.DSPost', 'Bluebird', 'moment', 'faker'];
+    var dependencies = ['lodash', 'rx', '$log', app.name + '.DSPost', 'Bluebird', 'moment', 'faker', '$window'];
 
-    function service(_, rx, $log, DSPost, Bluebird, moment, faker) {
+    function service(_, rx, $log, DSPost, Bluebird, moment, faker, $window) {
+        var allSubject = new rx.BehaviorSubject([]);
+        var existing = new rx.Observable.from(DSPost.findAll);
+
+        var all = existing.merge(allSubject);
+
+        var updateState = function updateState(input) {
+            $log.debug('updating ' + servicename + ' BehaviourSubject with ', input);
+            return allSubject.onNext(input);
+        };
+
         var create = function create(input, createId) {
             return new Promise(function (resolve, reject) {
                 if (!!input && input.author && input.content && input.title) {
@@ -101672,37 +101711,35 @@ module.exports = function (app) {
                     }
                     input.createdAt = moment().toDate();
 
-                    resolve(DSPost.create(input));
+                    DSPost.create(input).then(function (createdPost) {
+                        DSPost.findAll().then(function (newState) {
+                            updateState(newState);
+                            resolve(createdPost);
+                        }, function (error) {
+                            reject(error);
+                        });
+                    }, function (err) {
+                        reject(err);
+                    });
                 } else {
                     reject('Post#create: missing/incomplete input');
                 }
             });
         };
 
-        var fakesPromises = _.map([1, 2, 3, 4, 5], function (value, key, collection) {
-            $log.debug('creating fake ' + value);
-            var fake = {
-                author: faker.internet.email(),
-                content: faker.lorem.sentence(),
-                title: faker.company.bs()
-            };
-            return create(fake, true);
-        });
+        var lorem = faker.lorem.sentence();
+        var bs = faker.company.bs();
 
-        Promise.settle(fakesPromises).then(function (results) {
-            _.forEach(results, function (result, index, collection) {
-                if (result.isFulfilled()) {
-                    $log.debug('fake ' + index + ' fulfilled: ', result.value());
-                } else if (result.isRejected()) {
-                    $log.error('fake ' + index + ' rejected: ', result.reason());
-                } else {
-                    $log.error('fake ' + index + ' unknown!?: ', result);
-                }
-            });
+        create({ author: faker.internet.email(), title: bs, content: lorem }, true).then(function (success) {
+            $log.info('created fake', success);
+        }, function (error) {
+            $log.error('could not create fake', error);
         });
 
         return {
-            create: create
+            create: create,
+            all: all,
+            updateState: updateState
         };
     }
 
@@ -101714,16 +101751,13 @@ module.exports = function (app) {
 module.exports = '<div class="container">\n' +
     '    <h1>Posts <small>{{homeCtrl.controllername}}</small></h1>\n' +
     '    <ul class="list-group">\n' +
-    '      <a class="list-group-item clearfix" ng-repeat="post in [1,2,3,4]" ui-sref="viewPost({postId: post})">\n' +
+    '      <a class="list-group-item clearfix" ng-repeat="post in homeCtrl.allPosts" ui-sref="viewPost({postId: post.id})">\n' +
     '          <button type="button" class="close pull-right" aria-label="Close"><span aria-hidden="true">&times;</span></button>\n' +
-    '        <h4 class="list-group-item-heading">Post {{post}}</h3>\n' +
+    '        <h4 class="list-group-item-heading">{{post.title}} <small>({{post.id}})</small></h3>\n' +
     '        <p class="list-group-item-text">\n' +
-    '            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\n' +
-    '            tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\n' +
-    '            quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\n' +
-    '            consequat.\n' +
+    '            {{post.content}}\n' +
     '        </p>\n' +
-    '        <span class="badge">{{post}} Comments</span>\n' +
+    '        <span class="badge">{{$index}} Comments</span>\n' +
     '      </a>\n' +
     '    </ul>\n' +
     '\n' +
