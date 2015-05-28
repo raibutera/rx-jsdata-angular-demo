@@ -5,7 +5,9 @@
     "test": "gulp test",
     "postinstall": "bower install && node ./bin/protractor-fix-version.js"
   },
-  "dependencies": {},
+  "dependencies": {
+    "localforage": "^1.2.2"
+  },
   "devDependencies": {
     "babelify": "6.1.1",
     "brfs": "1.4.0",
@@ -16,8 +18,9 @@
     "bundle-collapser": "1.1.4",
     "chai": "2.1.2",
     "chalk": "1.0.0",
-    "conventional-changelog": "0.0.14",
+    "conventional-changelog": "0.0.17",
     "cssify": "0.7.0",
+    "cz-conventional-changelog": "^1.1.0",
     "deamdify": "0.1.1",
     "del": "1.1.1",
     "envify": "3.4.0",
