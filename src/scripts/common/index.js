@@ -23,6 +23,8 @@ module.exports = function(namespace) {
     var app = angular.module(fullname, ['ui.router', 'rx', 'LocalForageModule', 'js-data']);
     // inject:folders start
 
+    require('./controllers')(app);
+
     require('./services')(app);
 
     // inject:folders end
@@ -40,11 +42,13 @@ module.exports = function(namespace) {
             $stateProvider
             .state('home', {
                 url: '/',
-                template: require('./views/home.html')
+                template: require('./views/home.html'),
+                controller: app.name + '.home as homeCtrl'
             })
             .state('viewPost', {
                 url: '/post/{postId}',
-                template: require('./views/view-post.html')
+                template: require('./views/view-post.html'),
+                controller: app.name + '.postDetail as postDetailCtrl'
             });
         }
     ]);

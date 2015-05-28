@@ -101340,6 +101340,60 @@ module.exports = function configureLocalForage(app) {
     return app.config(_configureLocalForage);
 };
 
+},{}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/controllers/home.controller.js":[function(require,module,exports){
+'use strict';
+var controllername = 'home';
+
+module.exports = function (app) {
+    var fullname = app.name + '.' + controllername;
+    /*jshint validthis: true */
+
+    var deps = [];
+
+    function controller() {
+        var vm = this;
+        vm.controllername = fullname;
+
+        var activate = function activate() {};
+        activate();
+    }
+
+    controller.$inject = deps;
+    app.controller(fullname, controller);
+};
+
+},{}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/controllers/index.js":[function(require,module,exports){
+'use strict';
+
+module.exports = function (app) {
+    // inject:start
+    require('./home.controller')(app);
+    require('./post-detail.controller')(app);
+    // inject:end
+};
+
+},{"./home.controller":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/controllers/home.controller.js","./post-detail.controller":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/controllers/post-detail.controller.js"}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/controllers/post-detail.controller.js":[function(require,module,exports){
+'use strict';
+var controllername = 'postDetail';
+
+module.exports = function (app) {
+    var fullname = app.name + '.' + controllername;
+    /*jshint validthis: true */
+
+    var deps = [];
+
+    function controller() {
+        var vm = this;
+        vm.controllername = fullname;
+
+        var activate = function activate() {};
+        activate();
+    }
+
+    controller.$inject = deps;
+    app.controller(fullname, controller);
+};
+
 },{}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/index.js":[function(require,module,exports){
 (function (global){
 'use strict';
@@ -101367,6 +101421,8 @@ module.exports = function (namespace) {
     var app = angular.module(fullname, ['ui.router', 'rx', 'LocalForageModule', 'js-data']);
     // inject:folders start
 
+    require('./controllers')(app);
+
     require('./services')(app);
 
     // inject:folders end
@@ -101382,10 +101438,12 @@ module.exports = function (namespace) {
         $urlRouterProvider.otherwise('/');
         $stateProvider.state('home', {
             url: '/',
-            template: require('./views/home.html')
+            template: require('./views/home.html'),
+            controller: app.name + '.home as homeCtrl'
         }).state('viewPost', {
             url: '/post/{postId}',
-            template: require('./views/view-post.html')
+            template: require('./views/view-post.html'),
+            controller: app.name + '.postDetail as postDetailCtrl'
         });
     }]);
 
@@ -101394,7 +101452,7 @@ module.exports = function (namespace) {
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./config":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/config/index.js","./run":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/run/index.js","./services":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/index.js","./views/home.html":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/views/home.html","./views/view-post.html":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/views/view-post.html","angular":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular/angular.js","angular-localforage":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular-localforage/dist/angular-localForage.min.js","angular-rx":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular-rx/dist/rx.angular.js","angular-ui-router":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular-ui-router/release/angular-ui-router.js","faker":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/Faker/index.js","js-data":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/js-data/dist/js-data.js","js-data-angular":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/js-data-angular/dist/js-data-angular.js","js-data-localforage":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/js-data-localforage/dist/js-data-localforage.js","js-data-schema":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/js-data-schema/dist/js-data-schema.js","localforage":"/Users/rai/dev/rx-jsdata-angular-demo/node_modules/localforage/src/localforage.js","lodash":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/lodash/lodash.min.js","moment":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/moment/min/moment.min.js","rx":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/rxjs/dist/rx.all.js"}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/run/index.js":[function(require,module,exports){
+},{"./config":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/config/index.js","./controllers":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/controllers/index.js","./run":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/run/index.js","./services":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/index.js","./views/home.html":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/views/home.html","./views/view-post.html":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/views/view-post.html","angular":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular/angular.js","angular-localforage":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular-localforage/dist/angular-localForage.min.js","angular-rx":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular-rx/dist/rx.angular.js","angular-ui-router":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular-ui-router/release/angular-ui-router.js","faker":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/Faker/index.js","js-data":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/js-data/dist/js-data.js","js-data-angular":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/js-data-angular/dist/js-data-angular.js","js-data-localforage":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/js-data-localforage/dist/js-data-localforage.js","js-data-schema":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/js-data-schema/dist/js-data-schema.js","localforage":"/Users/rai/dev/rx-jsdata-angular-demo/node_modules/localforage/src/localforage.js","lodash":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/lodash/lodash.min.js","moment":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/moment/min/moment.min.js","rx":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/rxjs/dist/rx.all.js"}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/run/index.js":[function(require,module,exports){
 /**
  * rjadCommonRun
  * Description
@@ -101544,7 +101602,7 @@ module.exports = function (app) {
 
 },{}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/views/home.html":[function(require,module,exports){
 module.exports = '<div class="container">\n' +
-    '    <h1>Posts</h1>\n' +
+    '    <h1>Posts <small>{{homeCtrl.controllername}}</small></h1>\n' +
     '    <ul class="list-group">\n' +
     '      <a class="list-group-item clearfix" ng-repeat="post in [1,2,3,4]" ui-sref="viewPost({postId: post})">\n' +
     '          <button type="button" class="close pull-right" aria-label="Close"><span aria-hidden="true">&times;</span></button>\n' +
@@ -101560,7 +101618,7 @@ module.exports = '<div class="container">\n' +
     '    </ul>\n' +
     '\n' +
     '\n' +
-    '    <div class="panel">\n' +
+    '    <div class="panel panel-default">\n' +
     '        <div class="panel-heading">New Post</div>\n' +
     '        <div class="panel-body">\n' +
     '                <form class="form-horizontal">\n' +
@@ -101600,7 +101658,8 @@ module.exports = '<div class="container">\n' +
 },{}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/views/view-post.html":[function(require,module,exports){
 module.exports = '<div class="container">\n' +
     '  <div class="jumbotron">\n' +
-    '          <h1>Title <small>by email@domain.com</small></h1>\n' +
+    '          <h1>Title <small>{{postDetailCtrl.controllername}}</small></h1>\n' +
+    '          <p class="lead">by email@email.com</p>\n' +
     '          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\n' +
     '          tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\n' +
     '          quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\n' +
@@ -101609,7 +101668,7 @@ module.exports = '<div class="container">\n' +
     '          proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>\n' +
     '  </div>\n' +
     '\n' +
-    '  <h3>Comments</h3>\n' +
+    '  <h3>Comments </h3>\n' +
     '\n' +
     '    <blockquote class="pull-left">\n' +
     '      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>\n' +
@@ -101622,7 +101681,7 @@ module.exports = '<div class="container">\n' +
     '    </blockquote>\n' +
     '</div>\n' +
     '<div class="container">\n' +
-    '    <div class="panel">\n' +
+    '    <div class="panel panel-default">\n' +
     '        <div class="panel-heading">Post New Comment</div>\n' +
     '        <div class="panel-body">\n' +
     '            <form class="form-horizontal">\n' +
