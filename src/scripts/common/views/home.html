@@ -1,11 +1,11 @@
 <div class="container">
-    <h1>Posts <small>{{homeCtrl.controllername}}</small></h1>
+    <h2>Posts</h2>
     <ul class="list-group">
       <a class="list-group-item clearfix" ng-repeat="post in homeCtrl.allPosts" ui-sref="viewPost({postId: post.id})">
           <button type="button" class="close pull-right" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="list-group-item-heading">{{post.title}} <small>({{post.id}})</small></h3>
+        <h4 class="list-group-item-heading">{{post.title}}</h3>
         <p class="list-group-item-text">
-            {{post.content}}
+            {{post.content}}<br><br><span class="pull-right">#{{$index}} (id: {{post.id}})</span>
         </p>
         <span class="badge">{{$index}} Comments</span>
       </a>

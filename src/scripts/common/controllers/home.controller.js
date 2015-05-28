@@ -13,17 +13,13 @@ module.exports = function(app) {
 
         vm.allPosts = [];
 
-        var timesUpdated = 0;
-
         var allPostsStream = Post.all.subscribe(
             function(newState){
-                timesUpdated++;
-                $log.info(fullname + ' got Posts state update #' + timesUpdated + ': ', newState);
+                // $log.info(fullname + ' got Posts state update #' + timesUpdated + ': ', newState);
                 vm.allPosts = newState;
             },
             function(err){
-                timesUpdated++;
-                $log.error(fullname + ' got Posts state ERROR #' + timesUpdated + ': ', err);
+                $log.error(fullname + ' got Posts state ERROR #: ', err);
             },
             function(completed){
                 $log.error(fullname + ' Posts COMPLETED', completed);

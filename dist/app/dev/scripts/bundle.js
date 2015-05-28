@@ -101356,15 +101356,11 @@ module.exports = function (app) {
 
         vm.allPosts = [];
 
-        var timesUpdated = 0;
-
         var allPostsStream = Post.all.subscribe(function (newState) {
-            timesUpdated++;
-            $log.info(fullname + ' got Posts state update #' + timesUpdated + ': ', newState);
+            // $log.info(fullname + ' got Posts state update #' + timesUpdated + ': ', newState);
             vm.allPosts = newState;
         }, function (err) {
-            timesUpdated++;
-            $log.error(fullname + ' got Posts state ERROR #' + timesUpdated + ': ', err);
+            $log.error(fullname + ' got Posts state ERROR #: ', err);
         }, function (completed) {
             $log.error(fullname + ' Posts COMPLETED', completed);
         });
@@ -101477,11 +101473,11 @@ module.exports = function (namespace) {
 'use strict';
 
 module.exports = function bootstrapData(app) {
-    function _bootstrapData($log, Post) {
+    function _bootstrapData($log, Post, Comment) {
         $log.info('bootstrapping data');
     }
 
-    _bootstrapData.$inject = ['$log', app.name + '.Post'];
+    _bootstrapData.$inject = ['$log', app.name + '.Post', app.name + '.Comment'];
 
     return app.run(_bootstrapData);
 };
@@ -101570,14 +101566,41 @@ module.exports = function (app) {
     var dependencies = ['DS', 'lodash', 'rx', '$log'];
 
     function service(DS, _, rx, $log) {
-        var add = function add(a, b) {
-            return a + b;
-        };
+        return DS.defineResource({
+            name: 'Comment',
+            idAttribute: 'id',
+            endpoint: '/comment',
+            schema: {
+                id: {
+                    type: 'string',
+                    nullable: false
+                },
+                author: {
+                    type: 'string',
+                    nullable: false,
+                    minLength: 5,
+                    maxLength: 64
+                },
+                message: {
+                    type: 'string',
+                    nullable: false,
+                    minLength: 3,
+                    maxLength: 140
+                },
+                createdAt: {
+                    type: 'date',
+                    nullable: false
+                }
+            },
+            // basePath: 'http://myoverridingapp.com/api',
+            beforeDestroy: function beforeDestroy(resourceName, attrs, cb) {
 
-        return {
-            add: add
-        };
+                cb(null, attrs);
+            },
+            methods: {}
+        });
     }
+
     service.$inject = dependencies;
     app.factory(app.name + '.' + servicename, service);
 };
@@ -101753,13 +101776,13 @@ module.exports = function (app) {
 
 },{}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/views/home.html":[function(require,module,exports){
 module.exports = '<div class="container">\n' +
-    '    <h1>Posts <small>{{homeCtrl.controllername}}</small></h1>\n' +
+    '    <h2>Posts</h2>\n' +
     '    <ul class="list-group">\n' +
     '      <a class="list-group-item clearfix" ng-repeat="post in homeCtrl.allPosts" ui-sref="viewPost({postId: post.id})">\n' +
     '          <button type="button" class="close pull-right" aria-label="Close"><span aria-hidden="true">&times;</span></button>\n' +
-    '        <h4 class="list-group-item-heading">{{post.title}} <small>({{post.id}})</small></h3>\n' +
+    '        <h4 class="list-group-item-heading">{{post.title}}</h3>\n' +
     '        <p class="list-group-item-text">\n' +
-    '            {{post.content}}\n' +
+    '            {{post.content}}<br><br><span class="pull-right">#{{$index}} (id: {{post.id}})</span>\n' +
     '        </p>\n' +
     '        <span class="badge">{{$index}} Comments</span>\n' +
     '      </a>\n' +
@@ -101806,7 +101829,7 @@ module.exports = '<div class="container">\n' +
 },{}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/views/view-post.html":[function(require,module,exports){
 module.exports = '<div class="container">\n' +
     '  <div class="jumbotron">\n' +
-    '          <h1>Title <small>{{postDetailCtrl.controllername}}</small></h1>\n' +
+    '          <h1>Title</h1>\n' +
     '          <p class="lead">by email@email.com</p>\n' +
     '          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\n' +
     '          tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\n' +
