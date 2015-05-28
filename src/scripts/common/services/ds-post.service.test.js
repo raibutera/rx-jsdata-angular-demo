@@ -2,7 +2,7 @@
 /*eslint consistent-this:[0] */
 var angular = require('angular-mocks');
 var app = require('../')('app');
-var servicename = 'dsPost';
+var servicename = 'DSPost';
 describe(app.name, function() {
 
     describe('Services', function() {

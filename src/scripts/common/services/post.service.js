@@ -1,11 +1,11 @@
 'use strict';
-var servicename = 'post';
+var servicename = 'Post';
 
 module.exports = function(app) {
 
-    var dependencies = [];
+    var dependencies = ['lodash', 'rx', '$log', app.namespace + '.DSPost', 'Bluebird'];
 
-    function service() {
+    function service(_, rx, $log, DSPost, Bluebird) {
         var add = function(a, b) {
             return a + b;
         };

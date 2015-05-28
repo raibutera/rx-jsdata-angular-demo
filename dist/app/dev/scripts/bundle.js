@@ -101383,6 +101383,9 @@ module.exports = function (namespace) {
         $stateProvider.state('home', {
             url: '/',
             template: require('./views/home.html')
+        }).state('viewPost', {
+            url: '/post/{postId}',
+            template: require('./views/view-post.html')
         });
     }]);
 
@@ -101391,7 +101394,7 @@ module.exports = function (namespace) {
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./config":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/config/index.js","./run":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/run/index.js","./services":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/index.js","./views/home.html":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/views/home.html","angular":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular/angular.js","angular-localforage":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular-localforage/dist/angular-localForage.min.js","angular-rx":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular-rx/dist/rx.angular.js","angular-ui-router":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular-ui-router/release/angular-ui-router.js","faker":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/Faker/index.js","js-data":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/js-data/dist/js-data.js","js-data-angular":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/js-data-angular/dist/js-data-angular.js","js-data-localforage":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/js-data-localforage/dist/js-data-localforage.js","js-data-schema":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/js-data-schema/dist/js-data-schema.js","localforage":"/Users/rai/dev/rx-jsdata-angular-demo/node_modules/localforage/src/localforage.js","lodash":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/lodash/lodash.min.js","moment":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/moment/min/moment.min.js","rx":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/rxjs/dist/rx.all.js"}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/run/index.js":[function(require,module,exports){
+},{"./config":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/config/index.js","./run":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/run/index.js","./services":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/index.js","./views/home.html":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/views/home.html","./views/view-post.html":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/views/view-post.html","angular":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular/angular.js","angular-localforage":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular-localforage/dist/angular-localForage.min.js","angular-rx":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular-rx/dist/rx.angular.js","angular-ui-router":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular-ui-router/release/angular-ui-router.js","faker":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/Faker/index.js","js-data":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/js-data/dist/js-data.js","js-data-angular":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/js-data-angular/dist/js-data-angular.js","js-data-localforage":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/js-data-localforage/dist/js-data-localforage.js","js-data-schema":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/js-data-schema/dist/js-data-schema.js","localforage":"/Users/rai/dev/rx-jsdata-angular-demo/node_modules/localforage/src/localforage.js","lodash":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/lodash/lodash.min.js","moment":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/moment/min/moment.min.js","rx":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/rxjs/dist/rx.all.js"}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/run/index.js":[function(require,module,exports){
 /**
  * rjadCommonRun
  * Description
@@ -101424,13 +101427,13 @@ module.exports = function setupJSDataAndAdapters(app) {
 
 },{}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/comment.service.js":[function(require,module,exports){
 'use strict';
-var servicename = 'comment';
+var servicename = 'Comment';
 
 module.exports = function (app) {
 
-    var dependencies = [];
+    var dependencies = ['lodash', 'rx', '$log', app.namespace + '.DSComment', 'Bluebird'];
 
-    function service() {
+    function service(_, rx, $log, DSComment, Bluebird) {
         var add = function add(a, b) {
             return a + b;
         };
@@ -101448,10 +101451,9 @@ module.exports = function (app) {
 var servicename = 'coreData';
 
 module.exports = function (app) {
+    var dependencies = ['lodash', 'rx', 'Bluebird', '$log', app.namespace + '.Comment', app.namespace + '.Post'];
 
-    var dependencies = [];
-
-    function service() {
+    function service(_, rx, Bluebird, $log, Comment, Post) {
         var add = function add(a, b) {
             return a + b;
         };
@@ -101466,13 +101468,13 @@ module.exports = function (app) {
 
 },{}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/ds-comment.service.js":[function(require,module,exports){
 'use strict';
-var servicename = 'dsComment';
+var servicename = 'DSComment';
 
 module.exports = function (app) {
 
-    var dependencies = [];
+    var dependencies = ['DS', 'lodash', 'rx', '$log'];
 
-    function service() {
+    function service(DS, _, rx, $log) {
         var add = function add(a, b) {
             return a + b;
         };
@@ -101487,13 +101489,13 @@ module.exports = function (app) {
 
 },{}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/ds-post.service.js":[function(require,module,exports){
 'use strict';
-var servicename = 'dsPost';
+var servicename = 'DSPost';
 
 module.exports = function (app) {
 
-    var dependencies = [];
+    var dependencies = ['DS', 'lodash', 'rx', '$log'];
 
-    function service() {
+    function service(DS, _, rx, $log) {
         var add = function add(a, b) {
             return a + b;
         };
@@ -101521,13 +101523,13 @@ module.exports = function (app) {
 
 },{"./comment.service":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/comment.service.js","./core-data.service":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/core-data.service.js","./ds-comment.service":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/ds-comment.service.js","./ds-post.service":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/ds-post.service.js","./post.service":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/post.service.js"}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/post.service.js":[function(require,module,exports){
 'use strict';
-var servicename = 'post';
+var servicename = 'Post';
 
 module.exports = function (app) {
 
-    var dependencies = [];
+    var dependencies = ['lodash', 'rx', '$log', app.namespace + '.DSPost', 'Bluebird'];
 
-    function service() {
+    function service(_, rx, $log, DSPost, Bluebird) {
         var add = function add(a, b) {
             return a + b;
         };
@@ -101541,6 +101543,112 @@ module.exports = function (app) {
 };
 
 },{}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/views/home.html":[function(require,module,exports){
-module.exports = '<div>Home</div>';
+module.exports = '<div class="container">\n' +
+    '    <h1>Posts</h1>\n' +
+    '    <ul class="list-group">\n' +
+    '      <a class="list-group-item clearfix" ng-repeat="post in [1,2,3,4]" ui-sref="viewPost({postId: post})">\n' +
+    '          <button type="button" class="close pull-right" aria-label="Close"><span aria-hidden="true">&times;</span></button>\n' +
+    '        <h4 class="list-group-item-heading">Post {{post}}</h3>\n' +
+    '        <p class="list-group-item-text">\n' +
+    '            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\n' +
+    '            tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\n' +
+    '            quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\n' +
+    '            consequat.\n' +
+    '        </p>\n' +
+    '        <span class="badge">{{post}} Comments</span>\n' +
+    '      </a>\n' +
+    '    </ul>\n' +
+    '\n' +
+    '\n' +
+    '    <div class="panel">\n' +
+    '        <div class="panel-heading">New Post</div>\n' +
+    '        <div class="panel-body">\n' +
+    '                <form class="form-horizontal">\n' +
+    '                  <div class="form-group">\n' +
+    '                    <label for="inputEmail" class="col-sm-2 control-label">Email</label>\n' +
+    '                    <div class="col-sm-10">\n' +
+    '                      <input type="email" class="form-control" id="inputEmail" placeholder="Email">\n' +
+    '                    </div>\n' +
+    '                  </div>\n' +
+    '                  <div class="form-group">\n' +
+    '                    <label for="inputTitle" class="col-sm-2 control-label">Title</label>\n' +
+    '                    <div class="col-sm-10">\n' +
+    '                      <input type="text" class="form-control" id="inputTitle" placeholder="Title">\n' +
+    '                    </div>\n' +
+    '                  </div>\n' +
+    '\n' +
+    '                  <div class="form-group">\n' +
+    '                    <label for="inputMessage" class="col-sm-2 control-label">Message</label>\n' +
+    '                    <div class="col-sm-10">\n' +
+    '                      <textarea class="form-control" rows="3" id="inputMessage" placeholder="Blah blah blah...."></textarea>\n' +
+    '                    </div>\n' +
+    '                  </div>\n' +
+    '\n' +
+    '                  <div class="form-group">\n' +
+    '                    <div class="col-sm-offset-2 col-sm-10">\n' +
+    '                      <button type="submit" class="btn btn-default btn-block">Create Post</button>\n' +
+    '                    </div>\n' +
+    '                  </div>\n' +
+    '                </form>\n' +
+    '        </div>\n' +
+    '    </div>\n' +
+    '\n' +
+    '\n' +
+    '\n' +
+    '</div>\n' +
+    '';
+},{}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/views/view-post.html":[function(require,module,exports){
+module.exports = '<div class="container">\n' +
+    '  <div class="jumbotron">\n' +
+    '          <h1>Title <small>by email@domain.com</small></h1>\n' +
+    '          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\n' +
+    '          tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\n' +
+    '          quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\n' +
+    '          consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse\n' +
+    '          cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non\n' +
+    '          proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>\n' +
+    '  </div>\n' +
+    '\n' +
+    '  <h3>Comments</h3>\n' +
+    '\n' +
+    '    <blockquote class="pull-left">\n' +
+    '      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>\n' +
+    '      <small>Someone famous in <cite title="Source Title">Source Title</cite></small>\n' +
+    '    </blockquote>\n' +
+    '\n' +
+    '    <blockquote class="pull-right">\n' +
+    '      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>\n' +
+    '      <small>Someone famous in <cite title="Source Title">Source Title</cite></small>\n' +
+    '    </blockquote>\n' +
+    '</div>\n' +
+    '<div class="container">\n' +
+    '    <div class="panel">\n' +
+    '        <div class="panel-heading">Post New Comment</div>\n' +
+    '        <div class="panel-body">\n' +
+    '            <form class="form-horizontal">\n' +
+    '              <div class="form-group">\n' +
+    '                <label for="inputEmail" class="col-sm-2 control-label">Email</label>\n' +
+    '                <div class="col-sm-10">\n' +
+    '                  <input type="email" class="form-control" id="inputEmail" placeholder="Email">\n' +
+    '                </div>\n' +
+    '              </div>\n' +
+    '              <div class="form-group">\n' +
+    '                <label for="inputMessage" class="col-sm-2 control-label">Comment</label>\n' +
+    '                <div class="col-sm-10">\n' +
+    '                  <textarea class="form-control" rows="3" id="inputMessage" placeholder="Blah blah blah...."></textarea>\n' +
+    '                </div>\n' +
+    '              </div>\n' +
+    '\n' +
+    '              <div class="form-group">\n' +
+    '                <div class="col-sm-offset-2 col-sm-10">\n' +
+    '                  <button type="submit" class="btn btn-default btn-block">Comment</button>\n' +
+    '                </div>\n' +
+    '              </div>\n' +
+    '            </form>\n' +
+    '        </div>\n' +
+    '    </div>\n' +
+    '\n' +
+    '</div>\n' +
+    '';
 },{}]},{},["./src/scripts/main.js"])
 //# sourceMappingURL=app-v0.0.1.map.js

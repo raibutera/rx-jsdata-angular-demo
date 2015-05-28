@@ -83,7 +83,8 @@ module.exports = function() {
                 src: ['./' + clientFolder + '/styles/main{{targetSuffix}}.scss']
             },
             css: {
-                src: ['./bower_components/bootstrap/dist/css/bootstrap.css', './bower_components/bootstrap/dist/css/bootstrap-theme.css'] // you can also add a specific src_appname
+                src: ['./src/lib/bootswatch/paper/bootstrap.css'] // you can also add a specific src_appname
+                // src: ['./bower_components/bootstrap/dist/css/bootstrap.css', './bower_components/bootstrap/dist/css/bootstrap-theme.css'] // you can also add a specific src_appname
             }
         },
         browserify: {

@@ -1,11 +1,11 @@
 'use strict';
-var servicename = 'comment';
+var servicename = 'Comment';
 
 module.exports = function(app) {
 
-    var dependencies = [];
+    var dependencies = ['lodash', 'rx', '$log', app.namespace + '.DSComment', 'Bluebird'];
 
-    function service() {
+    function service(_, rx, $log, DSComment, Bluebird) {
         var add = function(a, b) {
             return a + b;
         };
