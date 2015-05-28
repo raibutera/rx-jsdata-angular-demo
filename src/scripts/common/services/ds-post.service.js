@@ -30,7 +30,7 @@ module.exports = function (app) {
                 title: {
                     type: 'string',
                     nullable: false,
-                    minLength: 5,
+                    minLength: 3,
                     maxLength: 100
                 },
                 createdAt: {

@@ -101356,16 +101356,51 @@ module.exports = function (app) {
 
         vm.allPosts = [];
 
-        var allPostsStream = Post.all.subscribe(function (newState) {
-            // $log.info(fullname + ' got Posts state update #' + timesUpdated + ': ', newState);
-            vm.allPosts = newState;
-        }, function (err) {
-            $log.error(fullname + ' got Posts state ERROR #: ', err);
-        }, function (completed) {
-            $log.error(fullname + ' Posts COMPLETED', completed);
-        });
+        var allPostsStream;
+
+        function buildSubscription() {
+            allPostsStream = Post.all.subscribe(function (newState) {
+                $log.info(fullname + ' got Posts state update #:', newState);
+                vm.allPosts = newState;
+            }, function (err) {
+                $log.error(fullname + ' got Posts state ERROR #: ', err);
+            }, function (completed) {
+                $log.error(fullname + ' Posts COMPLETED', completed);
+            });
+        }
+
+        vm.newPostModel = {
+            author: '',
+            title: '',
+            message: ''
+        };
+
+        function resetNewPostModel() {
+            vm.newPostModel = {
+                author: '',
+                title: '',
+                message: ''
+            };
+        }
+
+        vm.createNewPost = function (newPost) {
+            return Post.create(newPost, true).then(function (newlyCreated) {
+                resetNewPostModel();
+                $log.debug('homeCtrl: created new post (id:' + newlyCreated.id + ')');
+            }, function (error) {
+                $log.error('homeCtrl: new post create error:', error);
+            });
+        };
+
+        var activate = function activate() {
+            $log.debug('activating HomeCtrl');
+            buildSubscription();
+        };
+
+        activate();
 
         $scope.$on('$destroy', function () {
+            $log.info('destroying HomeCtrl $scope');
             allPostsStream.dispose();
         });
     }
@@ -101638,7 +101673,7 @@ module.exports = function (app) {
                 title: {
                     type: 'string',
                     nullable: false,
-                    minLength: 5,
+                    minLength: 3,
                     maxLength: 100
                 },
                 createdAt: {
@@ -101679,31 +101714,33 @@ var servicename = 'placeholders';
 
 module.exports = function (app) {
 
-    var dependencies = ['lodash', 'faker', 'moment', '$log', app.name + '.Post', app.name + '.Comment'];
+    var dependencies = ['lodash', 'faker', 'moment', '$log', app.name + '.Post', app.name + '.Comment', 'Bluebird'];
 
-    function service(_, faker, moment, $log, Post, Comment) {
-        var fakesPromises = _.map([1, 2, 3, 4, 5], function (value, key, collection) {
-            $log.debug('creating fake ' + value);
-            var fake = {
-                author: faker.internet.email(),
-                content: faker.lorem.sentence(),
-                title: faker.company.bs()
-            };
-            return Post.create(fake, true);
-        });
-
-        Promise.settle(fakesPromises).then(function (results) {
-            _.forEach(results, function (result, index, collection) {
-                if (result.isFulfilled()) {
-                    $log.debug('fake ' + index + ' fulfilled: ', result.value());
-                    Post.updateState(result.value());
-                } else if (result.isRejected()) {
-                    $log.error('fake ' + index + ' rejected: ', result.reason());
-                } else {
-                    $log.error('fake ' + index + ' unknown!?: ', result);
-                }
+    function service(_, faker, moment, $log, Post, Comment, Bluebird) {
+        function buildPosts() {
+            var fakesPromises = _.map([1, 2, 3, 4, 5], function (value, key, collection) {
+                $log.debug('creating fake ' + value);
+                var fake = {
+                    author: faker.internet.email(),
+                    content: faker.lorem.sentence(),
+                    title: faker.company.bs()
+                };
+                return Post.create(fake, true);
             });
-        });
+
+            return Promise.settle(fakesPromises).then(function (results) {
+                _.forEach(results, function (result, index, collection) {
+                    if (result.isFulfilled()) {
+                        $log.debug('fake ' + index + ' fulfilled: ', result.value());
+                        Post.updateState(result.value());
+                    } else if (result.isRejected()) {
+                        $log.error('fake ' + index + ' rejected: ', result.reason());
+                    } else {
+                        $log.error('fake ' + index + ' unknown!?: ', result);
+                    }
+                });
+            });
+        }
 
         return {};
     }
@@ -101717,51 +101754,45 @@ var servicename = 'Post';
 
 module.exports = function (app) {
 
-    var dependencies = ['lodash', 'rx', '$log', app.name + '.DSPost', 'Bluebird', 'moment', 'faker', '$window'];
+    var dependencies = ['lodash', 'rx', '$log', app.name + '.DSPost', '$q', 'moment', 'faker'];
 
-    function service(_, rx, $log, DSPost, Bluebird, moment, faker, $window) {
-        var allSubject = new rx.BehaviorSubject([]);
-        var existing = new rx.Observable.from(DSPost.findAll);
+    function service(_, rx, $log, DSPost, $q, moment, faker) {
+        var all = new rx.BehaviorSubject();
 
-        var all = existing.merge(allSubject);
+        DSPost.findAll(null, { bypassCache: true }).then(function (success) {
+            all.onNext(success);
+        }, function (error) {
+            all.onError(error);
+        });
 
         var updateState = function updateState(input) {
-            $log.debug('updating ' + servicename + ' BehaviourSubject with ', input);
-            return allSubject.onNext(input);
+            // $log.debug('updating ' + servicename + ' BehaviourSubject with ', input);
+            return all.onNext(input);
         };
 
         var create = function create(input, createId) {
-            return new Promise(function (resolve, reject) {
-                if (!!input && input.author && input.content && input.title) {
-                    if (!!createId) {
-                        input.id = faker.random.uuid();
-                    }
-                    input.createdAt = moment().toDate();
-
-                    DSPost.create(input).then(function (createdPost) {
-                        DSPost.findAll().then(function (newState) {
-                            updateState(newState);
-                            resolve(createdPost);
-                        }, function (error) {
-                            reject(error);
-                        });
-                    }, function (err) {
-                        reject(err);
-                    });
-                } else {
-                    reject('Post#create: missing/incomplete input');
+            var deferred = $q.defer();
+            if (!!input && input.author && input.content && input.title) {
+                if (!!createId) {
+                    input.id = faker.random.uuid();
                 }
-            });
+                input.createdAt = moment().toDate();
+
+                DSPost.create(input).then(function (createdPost) {
+                    DSPost.findAll(null, { bypassCache: true }).then(function (newState) {
+                        updateState(newState);
+                        deferred.resolve(createdPost);
+                    }, function (error) {
+                        deferred.reject(error);
+                    });
+                }, function (err) {
+                    deferred.reject(err);
+                });
+            } else {
+                deferred.reject('Post#create: missing/incomplete input');
+            }
+            return deferred.promise;
         };
-
-        var lorem = faker.lorem.sentence();
-        var bs = faker.company.bs();
-
-        create({ author: faker.internet.email(), title: bs, content: lorem }, true).then(function (success) {
-            $log.info('created fake', success);
-        }, function (error) {
-            $log.error('could not create fake', error);
-        });
 
         return {
             create: create,
@@ -101780,10 +101811,11 @@ module.exports = '<div class="container">\n' +
     '    <ul class="list-group">\n' +
     '      <a class="list-group-item clearfix" ng-repeat="post in homeCtrl.allPosts" ui-sref="viewPost({postId: post.id})">\n' +
     '          <button type="button" class="close pull-right" aria-label="Close"><span aria-hidden="true">&times;</span></button>\n' +
-    '        <h4 class="list-group-item-heading">{{post.title}}</h3>\n' +
+    '        <h3 class="list-group-item-heading">{{post.title}} <small>by {{post.author}}</small></h3>\n' +
     '        <p class="list-group-item-text">\n' +
-    '            {{post.content}}<br><br><span class="pull-right">#{{$index}} (id: {{post.id}})</span>\n' +
+    '            {{post.content}}\n' +
     '        </p>\n' +
+    '        <p><small>#{{$index}} (id: {{post.id}})</small></p>\n' +
     '        <span class="badge">{{$index}} Comments</span>\n' +
     '      </a>\n' +
     '    </ul>\n' +
@@ -101792,24 +101824,24 @@ module.exports = '<div class="container">\n' +
     '    <div class="panel panel-default">\n' +
     '        <div class="panel-heading">New Post</div>\n' +
     '        <div class="panel-body">\n' +
-    '                <form class="form-horizontal">\n' +
+    '                <form ng-submit="homeCtrl.createNewPost(homeCtrl.newPostModel)" class="form-horizontal">\n' +
     '                  <div class="form-group">\n' +
     '                    <label for="inputEmail" class="col-sm-2 control-label">Email</label>\n' +
     '                    <div class="col-sm-10">\n' +
-    '                      <input type="email" class="form-control" id="inputEmail" placeholder="Email">\n' +
+    '                      <input type="email" class="form-control" id="inputEmail" placeholder="Email" ng-model="homeCtrl.newPostModel.author">\n' +
     '                    </div>\n' +
     '                  </div>\n' +
     '                  <div class="form-group">\n' +
     '                    <label for="inputTitle" class="col-sm-2 control-label">Title</label>\n' +
     '                    <div class="col-sm-10">\n' +
-    '                      <input type="text" class="form-control" id="inputTitle" placeholder="Title">\n' +
+    '                      <input type="text" class="form-control" id="inputTitle" placeholder="Title" ng-model="homeCtrl.newPostModel.title">\n' +
     '                    </div>\n' +
     '                  </div>\n' +
     '\n' +
     '                  <div class="form-group">\n' +
     '                    <label for="inputMessage" class="col-sm-2 control-label">Message</label>\n' +
     '                    <div class="col-sm-10">\n' +
-    '                      <textarea class="form-control" rows="3" id="inputMessage" placeholder="Blah blah blah...."></textarea>\n' +
+    '                      <textarea class="form-control" rows="3" id="inputMessage" placeholder="Blah blah blah...." ng-model="homeCtrl.newPostModel.content"></textarea>\n' +
     '                    </div>\n' +
     '                  </div>\n' +
     '\n' +
@@ -101829,8 +101861,7 @@ module.exports = '<div class="container">\n' +
 },{}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/views/view-post.html":[function(require,module,exports){
 module.exports = '<div class="container">\n' +
     '  <div class="jumbotron">\n' +
-    '          <h1>Title</h1>\n' +
-    '          <p class="lead">by email@email.com</p>\n' +
+    '          <h2>Title <small>by email@email.com</small></h2>\n' +
     '          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\n' +
     '          tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\n' +
     '          quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\n' +
@@ -101839,7 +101870,7 @@ module.exports = '<div class="container">\n' +
     '          proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>\n' +
     '  </div>\n' +
     '\n' +
-    '  <h3>Comments </h3>\n' +
+    '  <h3>Comments</h3>\n' +
     '\n' +
     '    <blockquote class="pull-left">\n' +
     '      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>\n' +

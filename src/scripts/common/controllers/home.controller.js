@@ -13,20 +13,57 @@ module.exports = function(app) {
 
         vm.allPosts = [];
 
-        var allPostsStream = Post.all.subscribe(
-            function(newState){
-                // $log.info(fullname + ' got Posts state update #' + timesUpdated + ': ', newState);
-                vm.allPosts = newState;
+        var allPostsStream;
+
+        function buildSubscription(){
+            allPostsStream = Post.all.subscribe(
+                        function(newState){
+                            $log.info(fullname + ' got Posts state update #:', newState);
+                            vm.allPosts = newState;
+                        },
+                        function(err){
+                            $log.error(fullname + ' got Posts state ERROR #: ', err);
+                        },
+                        function(completed){
+                            $log.error(fullname + ' Posts COMPLETED', completed);
+                        }
+                    );
+        }
+
+
+        vm.newPostModel = {
+            author: '',
+            title: '',
+            message: ''
+        };
+
+        function resetNewPostModel (){
+            vm.newPostModel = {
+                author: '',
+                title: '',
+                message: ''
+            };
+        }
+
+        vm.createNewPost = function(newPost){
+            return Post.create(newPost, true).then(function(newlyCreated) {
+                resetNewPostModel();
+                $log.debug('homeCtrl: created new post (id:' + newlyCreated.id + ')');
             },
-            function(err){
-                $log.error(fullname + ' got Posts state ERROR #: ', err);
-            },
-            function(completed){
-                $log.error(fullname + ' Posts COMPLETED', completed);
-            }
-        );
+            function(error) {
+                $log.error('homeCtrl: new post create error:', error);
+            });
+        };
+
+        var activate = function(){
+            $log.debug('activating HomeCtrl');
+            buildSubscription();
+        };
+
+        activate();
 
         $scope.$on('$destroy', function(){
+            $log.info('destroying HomeCtrl $scope');
             allPostsStream.dispose();
         });
     }

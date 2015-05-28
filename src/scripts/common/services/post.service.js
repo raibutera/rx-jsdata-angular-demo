@@ -3,21 +3,25 @@ var servicename = 'Post';
 
 module.exports = function (app) {
 
-    var dependencies = ['lodash', 'rx', '$log', app.name + '.DSPost', 'Bluebird', 'moment', 'faker', '$window'];
+    var dependencies = ['lodash', 'rx', '$log', app.name + '.DSPost', '$q', 'moment', 'faker'];
 
-    function service(_, rx, $log, DSPost, Bluebird, moment, faker, $window) {
-        var allSubject = new rx.BehaviorSubject([]);
-        var existing = new rx.Observable.from(DSPost.findAll);
+    function service(_, rx, $log, DSPost, $q, moment, faker) {
+        var all = new rx.BehaviorSubject();
 
-        var all = existing.merge(allSubject);
+        DSPost.findAll(null, {bypassCache: true}).then(function(success) {
+          all.onNext(success);
+        },
+        function(error) {
+          all.onError(error);
+        });
 
         var updateState = function(input){
-            $log.debug('updating ' + servicename + ' BehaviourSubject with ', input);
-            return allSubject.onNext(input);
+            // $log.debug('updating ' + servicename + ' BehaviourSubject with ', input);
+            return all.onNext(input);
         };
 
         var create = function (input, createId) {
-            return new Promise(function (resolve, reject) {
+            var deferred = $q.defer();
                 if (!!input && input.author && input.content && input.title) {
                     if (!!createId) {
                         input.id = faker.random.uuid();
@@ -26,32 +30,22 @@ module.exports = function (app) {
 
                     DSPost.create(input)
                         .then(function(createdPost){
-                            DSPost.findAll().then(function(newState) {
+                            DSPost.findAll(null, {bypassCache: true}).then(function(newState) {
                                 updateState(newState);
-                                resolve(createdPost);
+                                deferred.resolve(createdPost);
                             },
                             function(error) {
-                              reject(error);
+                              deferred.reject(error);
                             });
 
                         }, function(err){
-                            reject(err);
+                            deferred.reject(err);
                         });
                 } else {
-                    reject('Post#create: missing/incomplete input');
+                    deferred.reject('Post#create: missing/incomplete input');
                 }
-            });
+            return deferred.promise;
         };
-
-        var lorem = faker.lorem.sentence();
-        var bs = faker.company.bs();
-
-        create({author: faker.internet.email(), title: bs, content: lorem}, true).then(function(success) {
-            $log.info('created fake', success);
-        },
-        function(error) {
-            $log.error('could not create fake', error);
-        });
 
         return {
             create: create,
