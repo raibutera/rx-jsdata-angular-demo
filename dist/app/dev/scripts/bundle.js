@@ -101358,7 +101358,7 @@ module.exports = function (app) {
 
         var timesUpdated = 0;
 
-        Post.all.subscribe(function (newState) {
+        var allPostsStream = Post.all.subscribe(function (newState) {
             timesUpdated++;
             $log.info(fullname + ' got Posts state update #' + timesUpdated + ': ', newState);
             vm.allPosts = newState;
@@ -101367,6 +101367,10 @@ module.exports = function (app) {
             $log.error(fullname + ' got Posts state ERROR #' + timesUpdated + ': ', err);
         }, function (completed) {
             $log.error(fullname + ' Posts COMPLETED', completed);
+        });
+
+        $scope.$on('$destroy', function () {
+            allPostsStream.dispose();
         });
     }
 

@@ -15,7 +15,7 @@ module.exports = function(app) {
 
         var timesUpdated = 0;
 
-        Post.all.subscribe(
+        var allPostsStream = Post.all.subscribe(
             function(newState){
                 timesUpdated++;
                 $log.info(fullname + ' got Posts state update #' + timesUpdated + ': ', newState);
@@ -30,7 +30,9 @@ module.exports = function(app) {
             }
         );
 
-
+        $scope.$on('$destroy', function(){
+            allPostsStream.dispose();
+        });
     }
 
     controller.$inject = deps;
