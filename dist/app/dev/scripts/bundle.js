@@ -101629,11 +101629,33 @@ module.exports = function (app) {
     require('./core-data.service')(app);
     require('./ds-comment.service')(app);
     require('./ds-post.service')(app);
+    require('./placeholders.service')(app);
     require('./post.service')(app);
     // inject:end
 };
 
-},{"./comment.service":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/comment.service.js","./core-data.service":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/core-data.service.js","./ds-comment.service":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/ds-comment.service.js","./ds-post.service":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/ds-post.service.js","./post.service":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/post.service.js"}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/post.service.js":[function(require,module,exports){
+},{"./comment.service":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/comment.service.js","./core-data.service":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/core-data.service.js","./ds-comment.service":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/ds-comment.service.js","./ds-post.service":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/ds-post.service.js","./placeholders.service":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/placeholders.service.js","./post.service":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/post.service.js"}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/placeholders.service.js":[function(require,module,exports){
+'use strict';
+var servicename = 'placeholders';
+
+module.exports = function (app) {
+
+    var dependencies = [];
+
+    function service() {
+        var add = function add(a, b) {
+            return a + b;
+        };
+
+        return {
+            add: add
+        };
+    }
+    service.$inject = dependencies;
+    app.factory(app.name + '.' + servicename, service);
+};
+
+},{}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/services/post.service.js":[function(require,module,exports){
 'use strict';
 var servicename = 'Post';
 
