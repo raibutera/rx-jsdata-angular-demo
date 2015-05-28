@@ -100540,6 +100540,22 @@ module.exports = asap;
     }
 }).call(window);
 
+},{}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/config/index.js":[function(require,module,exports){
+/**
+ * rjadCommonConfig
+ * Description
+ */
+
+'use strict';
+
+module.exports = function rjadCommonConfig(app) {
+    function _rjadCommonConfig(_, rx, $log) {}
+
+    _rjadCommonConfig.$inject = ['lodash', 'rx', '$log'];
+
+    return app.config(_rjadCommonConfig);
+};
+
 },{}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/index.js":[function(require,module,exports){
 (function (global){
 'use strict';
@@ -100565,7 +100581,10 @@ module.exports = function (namespace) {
     var angular = require('angular');
     var app = angular.module(fullname, ['ui.router', 'LocalForageModule', 'js-data', 'rx']);
     // inject:folders start
+
     // inject:folders end
+    require('./config')(app);
+    require('./run')(app);
 
     app.constant('lodash', _);
     app.constant('faker', faker);
@@ -100585,7 +100604,25 @@ module.exports = function (namespace) {
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./views/home.html":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/views/home.html","angular":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular/angular.js","angular-localforage":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular-localforage/dist/angular-localForage.min.js","angular-rx":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular-rx/dist/rx.angular.js","angular-ui-router":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular-ui-router/release/angular-ui-router.js","faker":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/Faker/index.js","js-data":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/js-data/dist/js-data.js","js-data-localforage":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/js-data-localforage/dist/js-data-localforage.js","localforage":"/Users/rai/dev/rx-jsdata-angular-demo/node_modules/localforage/src/localforage.js","lodash":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/lodash/lodash.min.js","moment":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/moment/min/moment.min.js","rx":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/rxjs/dist/rx.all.js"}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/views/home.html":[function(require,module,exports){
+},{"./config":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/config/index.js","./run":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/run/index.js","./views/home.html":"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/views/home.html","angular":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular/angular.js","angular-localforage":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular-localforage/dist/angular-localForage.min.js","angular-rx":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular-rx/dist/rx.angular.js","angular-ui-router":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/angular-ui-router/release/angular-ui-router.js","faker":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/Faker/index.js","js-data":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/js-data/dist/js-data.js","js-data-localforage":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/js-data-localforage/dist/js-data-localforage.js","localforage":"/Users/rai/dev/rx-jsdata-angular-demo/node_modules/localforage/src/localforage.js","lodash":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/lodash/lodash.min.js","moment":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/moment/min/moment.min.js","rx":"/Users/rai/dev/rx-jsdata-angular-demo/bower_components/rxjs/dist/rx.all.js"}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/run/index.js":[function(require,module,exports){
+/**
+ * rjadCommonRun
+ * Description
+ */
+
+'use strict';
+
+module.exports = function rjadCommonRun(app) {
+    function _rjadCommonRun(_, rx, $log) {}
+
+    _rjadCommonRun.$inject = ['lodash', 'rx', '$log'];
+
+    return app.run(_rjadCommonRun);
+};
+
+//todo
+
+},{}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/views/home.html":[function(require,module,exports){
 module.exports = '<div>Home</div>';
 },{}]},{},["./src/scripts/main.js"])
 //# sourceMappingURL=app-v0.0.1.map.js

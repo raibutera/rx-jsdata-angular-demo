@@ -21,7 +21,10 @@ module.exports = function(namespace) {
     var angular = require('angular');
     var app = angular.module(fullname, ['ui.router', 'LocalForageModule', 'js-data', 'rx']);
     // inject:folders start
+
     // inject:folders end
+    require('./config')(app);
+    require('./run')(app);
 
     app.constant('lodash', _);
     app.constant('faker', faker);
