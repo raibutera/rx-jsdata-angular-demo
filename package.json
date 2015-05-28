@@ -110,7 +110,7 @@
     "lodash": "./bower_components/lodash/lodash.min.js",
     "moment": "./bower_components/moment/min/moment.min.js",
     "faker": "./bower_components/Faker/index.js",
-    "bluebird": "./src/lib/bluebird.js",
+    "bluebird": "./bower_components/bluebird/js/browser/bluebird.js",
     "js-data-schema": "./bower_components/js-data-schema/dist/js-data-schema.js",
     "js-data-schema-rules": "./bower_components/js-data-schema-rules/index.js",
     "js-data": "./bower_components/js-data/dist/js-data.js",
