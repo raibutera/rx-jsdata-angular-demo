@@ -4,7 +4,7 @@
 [![Dependency Status](https://david-dm.org//rx-jsdata-angular-demo.svg)](https://david-dm.org//rx-jsdata-angular-demo) [![devDependency Status](https://david-dm.org//rx-jsdata-angular-demo/dev-status.svg)](https://david-dm.org//rx-jsdata-angular-demo#info=devDependencies) [![peerDependency Status](https://david-dm.org//rx-jsdata-angular-demo/peer-status.svg)](https://david-dm.org//rx-jsdata-angular-demo#info=peerDependencies)    
 
 ## To-Do
-- [ ] RBViewStream class 
+- [ ] mmg.ModelViewStream class
     - [ ] diagram 
     - [ ] illustration
     - [ ] API
