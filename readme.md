@@ -3,10 +3,35 @@
 [![Build Status](https://travis-ci.org//rx-jsdata-angular-demo.svg?branch=master)](https://travis-ci.org//rx-jsdata-angular-demo) [![Test Coverage](https://codeclimate.com/github//rx-jsdata-angular-demo/badges/coverage.svg)](https://codeclimate.com/github//rx-jsdata-angular-demo) [![Code Climate](https://codeclimate.com/github//rx-jsdata-angular-demo/badges/gpa.svg)](https://codeclimate.com/github//rx-jsdata-angular-demo)   
 [![Dependency Status](https://david-dm.org//rx-jsdata-angular-demo.svg)](https://david-dm.org//rx-jsdata-angular-demo) [![devDependency Status](https://david-dm.org//rx-jsdata-angular-demo/dev-status.svg)](https://david-dm.org//rx-jsdata-angular-demo#info=devDependencies) [![peerDependency Status](https://david-dm.org//rx-jsdata-angular-demo/peer-status.svg)](https://david-dm.org//rx-jsdata-angular-demo#info=peerDependencies)    
 
+## To-Do
+- [ ] RBViewStream class 
+    - [ ] diagram 
+    - [ ] illustration
+    - [ ] API
+- [ ] view post shows an actual post 
+- [ ] comments
+    - [ ] view comments 
+    - [ ] post new comment 
+    - [ ] comments count on posts 
+    - [ ] indicator for no posts 
+    - [ ] indicator for no comments 
+- [ ] persistence
+    - [ ] posts persistence
+    - [ ] comments persistence 
+- [ ] syncing
 
-> 
+- [ ] README 
+    - [ ] build instructions 
+    - [ ] running instructions 
+        + [ ] running client 
+        + [ ] running server
+- [ ] stack 
+    + [ ] RxJS 
+    + [ ] JS-Data
+    + [ ] Angular
+    + [ ] Loopback 
 
-[![NPM](https://nodei.co/npm/rx-jsdata-angular-demo.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/rx-jsdata-angular-demo)
+## Stack 
 
 ## Usage
 
