@@ -34,7 +34,7 @@ module.exports = function (app) {
                     maxLength: 100
                 },
                 createdAt: {
-                    type: 'date',
+                    type: 'string',
                     nullable: false
                 }
             },

@@ -28,7 +28,11 @@ module.exports = function (app) {
                     maxLength: 140
                 },
                 createdAt: {
-                    type: 'date',
+                    type: 'string',
+                    nullable: false
+                },
+                parentPost: {
+                    type: 'string',
                     nullable: false
                 }
             },

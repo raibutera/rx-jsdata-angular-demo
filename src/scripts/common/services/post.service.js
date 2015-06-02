@@ -26,7 +26,7 @@ module.exports = function (app) {
                     if (!!createId) {
                         input.id = faker.random.uuid();
                     }
-                    input.createdAt = moment().toDate();
+                    input.createdAt = moment().toJSON();
 
                     DSPost.create(input)
                         .then(function(createdPost){
