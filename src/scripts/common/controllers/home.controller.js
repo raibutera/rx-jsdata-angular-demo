@@ -16,7 +16,7 @@ module.exports = function(app) {
         var allPostsStream;
 
         function buildSubscription(){
-            allPostsStream = Post.all.subscribe(
+            allPostsStream = Post.all.output.subscribe(
                         function(newState){
                             $log.info(fullname + ' got Posts state update #:', newState);
                             vm.allPosts = newState;

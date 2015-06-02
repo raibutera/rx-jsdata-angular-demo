@@ -3,21 +3,21 @@ var servicename = 'Post';
 
 module.exports = function (app) {
 
-    var dependencies = ['lodash', 'rx', '$log', app.name + '.DSPost', '$q', 'moment', 'faker'];
+    var dependencies = ['lodash', 'rx', '$log', app.name + '.DSPost', '$q', 'moment', 'faker', 'MagicStream'];
 
-    function service(_, rx, $log, DSPost, $q, moment, faker) {
-        var all = new rx.BehaviorSubject();
-
-        DSPost.findAll(null, {bypassCache: true}).then(function(success) {
-          all.onNext(success);
-        },
-        function(error) {
-          all.onError(error);
+    function service(_, rx, $log, DSPost, $q, moment, faker, MagicStream) {
+        var all = new MagicStream({
+            'name': 'Posts',
+            'source': function(input){
+                return rx.Observable.fromPromise(DSPost.findAll(null, {bypassCache: true}));
+            }
         });
+
+        all.bootstrap();
 
         var updateState = function(input){
             // $log.debug('updating ' + servicename + ' BehaviourSubject with ', input);
-            return all.onNext(input);
+            return all.updates.add(input);
         };
 
         var create = function (input, createId) {

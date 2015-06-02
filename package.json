@@ -119,7 +119,8 @@
     "angular-localforage": "./bower_components/angular-localforage/dist/angular-localForage.min.js",
     "package-json": "./package.json",
     "rx": "./bower_components/rxjs/dist/rx.all.js",
-    "angular-rx" : "./bower_components/angular-rx/dist/rx.angular.js"
+    "angular-rx" : "./bower_components/angular-rx/dist/rx.angular.js",
+    "ngMagicStream": "./bower_components/ngMagicStream/dist/ngMagicStream.js"
   },
   "browserify": {
     "transform": [
@@ -155,9 +156,7 @@
       ]
     },
     "localforage":{
-        "exports": [
-          "global:localforage"
-        ]
+
       },
     "angular-localforage": {
       "depends": [
@@ -184,6 +183,11 @@
       "depends": [
         "bluebird:Promise",
         "js-data-schema"
+      ]
+    },
+    "ngMagicStream": {
+      "depends": [
+        "angular:angular"
       ]
     },
     "js-data-angular":{

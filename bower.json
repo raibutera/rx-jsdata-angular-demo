@@ -36,5 +36,8 @@
     "angular-animate": "1.3.15",
     "angular-sanitize": "1.3.15",
     "localforage": "~1.2.3"
+  },
+  "devDependencies": {
+    "ngMagicStream": "0.1.x"
   }
 }
