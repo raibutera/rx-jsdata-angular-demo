@@ -1,6 +1,6 @@
 <div class="container">
     <h2>Posts</h2>
-    <ul class="list-group">
+    <ul class="list-group" ng-if="homeCtrl.allPosts && homeCtrl.allPosts.length > 1">
       <a class="list-group-item clearfix" ng-repeat="post in homeCtrl.allPosts" ui-sref="viewPost({postId: post.id})">
           <button type="button" class="close pull-right" aria-label="Close"><span aria-hidden="true">&times;</span></button>
         <h3 class="list-group-item-heading">{{post.title}} <small>by {{post.author}}</small></h3>
@@ -11,6 +11,10 @@
         <span class="badge">{{$index}} Comments</span>
       </a>
     </ul>
+
+    <div class="panel" ng-if="!homeCtrl.allPosts || homeCtrl.allPosts.length < 1">
+      <div class="panel-body">No existing posts. Create a new one?</div>
+    </div>
 
 
     <div class="panel panel-default">

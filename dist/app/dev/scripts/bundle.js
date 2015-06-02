@@ -102051,7 +102051,7 @@ module.exports = function (app) {
 },{}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/views/home.html":[function(require,module,exports){
 module.exports = '<div class="container">\n' +
     '    <h2>Posts</h2>\n' +
-    '    <ul class="list-group">\n' +
+    '    <ul class="list-group" ng-if="homeCtrl.allPosts && homeCtrl.allPosts.length > 1">\n' +
     '      <a class="list-group-item clearfix" ng-repeat="post in homeCtrl.allPosts" ui-sref="viewPost({postId: post.id})">\n' +
     '          <button type="button" class="close pull-right" aria-label="Close"><span aria-hidden="true">&times;</span></button>\n' +
     '        <h3 class="list-group-item-heading">{{post.title}} <small>by {{post.author}}</small></h3>\n' +
@@ -102062,6 +102062,10 @@ module.exports = '<div class="container">\n' +
     '        <span class="badge">{{$index}} Comments</span>\n' +
     '      </a>\n' +
     '    </ul>\n' +
+    '\n' +
+    '    <div class="panel" ng-if="!homeCtrl.allPosts || homeCtrl.allPosts.length < 1">\n' +
+    '      <div class="panel-body">No existing posts. Create a new one?</div>\n' +
+    '    </div>\n' +
     '\n' +
     '\n' +
     '    <div class="panel panel-default">\n' +
