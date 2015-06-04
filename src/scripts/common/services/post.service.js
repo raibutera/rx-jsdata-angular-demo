@@ -3,48 +3,24 @@ var servicename = 'Post';
 
 module.exports = function (app) {
 
-    var dependencies = ['lodash', 'rx', '$log', app.name + '.DSPost', '$q', 'moment', 'faker', 'MagicStream'];
+    var dependencies = ['lodash', 'rx', '$log', app.name + '.DSPost', '$q', 'moment', 'faker', 'Bluebird'];
 
-    function service(_, rx, $log, DSPost, $q, moment, faker, MagicStream) {
-        var all = new MagicStream({
-            'name': 'Posts',
-            'source': function(input){
-                return rx.Observable.fromPromise(DSPost.findAll(null, {bypassCache: true}));
-            }
-        });
-
-        all.bootstrap();
-
-        var updateState = function(input){
-            // $log.debug('updating ' + servicename + ' BehaviourSubject with ', input);
-            return all.updates.add(input);
+    function service(_, rx, $log, DSPost, $q, moment, faker, BPromise) {
+        var all = function(){
+            return  DSPost.findAll(null, {bypassCache: true});
         };
 
         var create = function (input, createId) {
-            var deferred = $q.defer();
-                if (!!input && input.author && input.content && input.title) {
-                    if (!!createId) {
-                        input.id = faker.random.uuid();
-                    }
-                    input.createdAt = moment().toJSON();
-
-                    DSPost.create(input)
-                        .then(function(createdPost){
-                            DSPost.findAll(null, {bypassCache: true}).then(function(newState) {
-                                updateState(newState);
-                                deferred.resolve(createdPost);
-                            },
-                            function(error) {
-                              deferred.reject(error);
-                            });
-
-                        }, function(err){
-                            deferred.reject(err);
-                        });
-                } else {
-                    deferred.reject('Post#create: missing/incomplete input');
+            if (!!input && input.author && input.content && input.title) {
+                if (!!createId) {
+                    input.id = faker.random.uuid();
                 }
-            return deferred.promise;
+                input.createdAt = moment().toJSON();
+
+                return DSPost.create(input);
+            } else {
+                return BPromise.reject('Post#create: missing/incomplete input');
+            }
         };
 
         function getPost(postId, options){
@@ -54,7 +30,6 @@ module.exports = function (app) {
         return {
             create: create,
             all: all,
-            updateState: updateState,
             get: getPost
         };
 

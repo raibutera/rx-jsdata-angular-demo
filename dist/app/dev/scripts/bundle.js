@@ -101589,24 +101589,29 @@ module.exports = function (app) {
     var fullname = app.name + '.' + controllername;
     /*jshint validthis: true */
 
-    var deps = [app.name + '.Post', '$log', '$scope'];
+    var deps = [app.name + '.Post', '$log', '$scope', 'rx'];
 
-    function controller(Post, $log, $scope) {
+    function controller(Post, $log, $scope, rx) {
         var vm = this;
         vm.controllername = fullname;
 
         vm.allPosts = [];
 
-        var allPostsStream;
-
         function buildSubscription() {
-            allPostsStream = Post.all.output.subscribe(function (newState) {
-                $log.info(fullname + ' got Posts state update #:', newState);
-                vm.allPosts = newState;
+            vm.allPostsStream = new rx.BehaviorSubject();
+
+            vm.allPostsSubscription = vm.allPostsStream.subscribe(function (allPosts) {
+                vm.allPosts = allPosts;
             }, function (err) {
-                $log.error(fullname + ' got Posts state ERROR #: ', err);
-            }, function (completed) {
-                $log.error(fullname + ' Posts COMPLETED', completed);
+                $log.error('allPosts error', err);
+            }, function () {
+                throw new Error('allPostsStream is cold :x');
+            });
+
+            rx.Observable.fromPromise(Post.all()).subscribe(function (allPostsInitialState) {
+                vm.allPostsStream.onNext(allPostsInitialState);
+            }, function (error) {
+                vm.allPostsStream.onError(error);
             });
         }
 
@@ -101628,7 +101633,11 @@ module.exports = function (app) {
             return Post.create(newPost, true).then(function (newlyCreated) {
                 resetNewPostModel();
                 $log.debug('homeCtrl: created new post (id:' + newlyCreated.id + ')');
-            }, function (error) {
+                return Post.all();
+            }).then(function (updatedPostsState) {
+                $log.debug('homeCtrl: there are now ' + updatedPostsState.length + ' posts');
+                vm.allPostsStream.onNext(updatedPostsState);
+            })['catch'](function (error) {
                 $log.error('homeCtrl: new post create error:', error);
             });
         };
@@ -101642,7 +101651,7 @@ module.exports = function (app) {
 
         $scope.$on('$destroy', function () {
             $log.info('destroying HomeCtrl $scope');
-            allPostsStream.dispose();
+            vm.allPostsSubscription.dispose();
         });
     }
 
@@ -102099,45 +102108,24 @@ var servicename = 'Post';
 
 module.exports = function (app) {
 
-    var dependencies = ['lodash', 'rx', '$log', app.name + '.DSPost', '$q', 'moment', 'faker', 'MagicStream'];
+    var dependencies = ['lodash', 'rx', '$log', app.name + '.DSPost', '$q', 'moment', 'faker', 'Bluebird'];
 
-    function service(_, rx, $log, DSPost, $q, moment, faker, MagicStream) {
-        var all = new MagicStream({
-            'name': 'Posts',
-            'source': function source(input) {
-                return rx.Observable.fromPromise(DSPost.findAll(null, { bypassCache: true }));
-            }
-        });
-
-        all.bootstrap();
-
-        var updateState = function updateState(input) {
-            // $log.debug('updating ' + servicename + ' BehaviourSubject with ', input);
-            return all.updates.add(input);
+    function service(_, rx, $log, DSPost, $q, moment, faker, BPromise) {
+        var all = function all() {
+            return DSPost.findAll(null, { bypassCache: true });
         };
 
         var create = function create(input, createId) {
-            var deferred = $q.defer();
             if (!!input && input.author && input.content && input.title) {
                 if (!!createId) {
                     input.id = faker.random.uuid();
                 }
                 input.createdAt = moment().toJSON();
 
-                DSPost.create(input).then(function (createdPost) {
-                    DSPost.findAll(null, { bypassCache: true }).then(function (newState) {
-                        updateState(newState);
-                        deferred.resolve(createdPost);
-                    }, function (error) {
-                        deferred.reject(error);
-                    });
-                }, function (err) {
-                    deferred.reject(err);
-                });
+                return DSPost.create(input);
             } else {
-                deferred.reject('Post#create: missing/incomplete input');
+                return BPromise.reject('Post#create: missing/incomplete input');
             }
-            return deferred.promise;
         };
 
         function getPost(postId, options) {
@@ -102147,7 +102135,6 @@ module.exports = function (app) {
         return {
             create: create,
             all: all,
-            updateState: updateState,
             get: getPost
         };
     }
