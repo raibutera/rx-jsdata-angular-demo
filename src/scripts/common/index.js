@@ -12,7 +12,7 @@ require('js-data-schema');
 require('js-data');
 require('js-data-angular');
 require('js-data-localforage');
-require('ngMagicStream');
+require('angular-timeago');
 
 var modulename = 'common';
 
@@ -21,7 +21,7 @@ module.exports = function(namespace) {
     var fullname = namespace + '.' + modulename;
 
     var angular = require('angular');
-    var app = angular.module(fullname, ['ui.router', 'rx', 'LocalForageModule', 'js-data', 'mmg.MagicStreams']);
+    var app = angular.module(fullname, ['ui.router', 'rx', 'LocalForageModule', 'js-data', 'yaru22.angular-timeago']);
     // inject:folders start
 
     require('./controllers')(app);

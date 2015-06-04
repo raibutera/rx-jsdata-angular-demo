@@ -34,14 +34,15 @@
 
     <h2>Posts</h2>
     <ul class="list-group" ng-if="homeCtrl.allPosts && homeCtrl.allPosts.length > 0">
-      <a class="list-group-item clearfix" ng-repeat="post in homeCtrl.allPosts" ui-sref="viewPost({postId: post.id})">
+      <a class="list-group-item clearfix" ng-repeat="post in homeCtrl.allPosts track by post.id" ui-sref="viewPost({postId: post.id})">
           <button type="button" class="close pull-right" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h3 class="list-group-item-heading">{{post.title}} <small>by {{post.author}}</small></h3>
+          <p class="pull-right"><small>{{::post.createdAt | timeAgo}}</small></p>
+        <h3 class="list-group-item-heading">{{::post.title}} <small>by {{::post.author}}</small></h3>
         <p class="list-group-item-text">
             {{post.content}}
         </p>
         <p><small>#{{$index}} (id: {{post.id}})</small></p>
-        <span class="badge">{{$index}} Comments</span>
+        <span class="badge" ng-if="post.commentCount.checked">{{post.commentCount.value}} Comments</span>
       </a>
     </ul>
 

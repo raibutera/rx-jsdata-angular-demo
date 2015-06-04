@@ -2,6 +2,7 @@
 
 <div class="container">
   <div class="jumbotron" ng-if="postDetailCtrl.postInfo">
+          <p><small>{{postDetailCtrl.postInfo.createdAt | timeAgo}}</small></p>
           <h2>{{postDetailCtrl.postInfo.title}}&nbsp;<small>by {{postDetailCtrl.postInfo.author}}</small></h2>
           <p>{{postDetailCtrl.postInfo.content}}</p>
   </div>
@@ -10,11 +11,11 @@
     <div class="panel panel-default">
         <div class="panel-heading">Post New Comment</div>
         <div class="panel-body">
-            <form ng-submit="postDetailCtrl.createNewComment(postDetailCtrl.newCommentModel)" class="form-horizontal">
+            <form ng-submit="postDetailCtrl.createNewComment(postDetailCtrl.newCommentModel)" class="form-horizontal" novalidate>
               <div class="form-group">
                 <label for="inputEmail" class="col-sm-2 control-label">Email</label>
                 <div class="col-sm-10">
-                  <input tabindex="1" type="email" ng-model="postDetailCtrl.newCommentModel.author" class="form-control" id="inputEmail" placeholder="Email">
+                  <input tabindex="1" type="text" ng-model="postDetailCtrl.newCommentModel.author" class="form-control" id="inputEmail" placeholder="Email">
                 </div>
               </div>
               <div class="form-group">
@@ -47,7 +48,7 @@
         <div ng-repeat="postComment in postDetailCtrl.postComments.all track by postComment.id" class="col-xs-12">
           <blockquote ng-class-even="'blockquote-reverse'">
             <p>{{::postComment.message}}</p>
-            <small><cite title="comment author">{{::postComment.author}}</cite> at <cite title="comment time">{{::postComment.createdAt | date}}</cite></small>
+            <small><cite title="comment author">{{::postComment.author}}</cite>&nbsp;<cite title="comment time">{{::postComment.createdAt | timeAgo}}</cite></small>
           </blockquote>
         </div>
 

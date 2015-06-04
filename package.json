@@ -120,7 +120,8 @@
     "package-json": "./package.json",
     "rx": "./bower_components/rxjs/dist/rx.all.js",
     "angular-rx" : "./bower_components/angular-rx/dist/rx.angular.js",
-    "ngMagicStream": "./bower_components/ngMagicStream/dist/ngMagicStream.js"
+    "ngMagicStream": "./bower_components/ngMagicStream/dist/ngMagicStream.js",
+    "angular-timeago": "./bower_components/angular-timeago/src/timeAgo.js"
   },
   "browserify": {
     "transform": [
@@ -201,6 +202,11 @@
         "angular"
       ],
       "exports": "angular.module('ui.bootstrap').name"
+    },
+    "angular-timeago":{
+      "depends": [
+        "angular:angular"
+      ]
     }
   }
 }
