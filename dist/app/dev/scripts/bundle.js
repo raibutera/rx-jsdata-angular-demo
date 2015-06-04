@@ -101668,51 +101668,61 @@ module.exports = function (app) {
     var fullname = app.name + '.' + controllername;
     /*jshint validthis: true */
 
-    var deps = ['lodash', app.name + '.Post', '$log', '$scope', '$stateParams', app.name + '.Comment', app.name + '.DSComment', '$window'];
+    var deps = ['lodash', app.name + '.Post', '$log', '$scope', '$stateParams', app.name + '.Comment', app.name + '.DSComment', '$window', 'rx'];
 
-    function controller(_, Post, $log, $scope, $stateParams, Comment, DSComment, $window) {
+    function controller(_, Post, $log, $scope, $stateParams, Comment, DSComment, $window, rx) {
         var vm = this;
         vm.controllername = fullname;
 
-        vm.postInfo = {};
         vm.postComments = {
             all: []
         };
 
+        vm.postInfo = {};
+
         var postId = $stateParams.postId;
 
-        var allPostsStream;
-        var commentsForPost;
+        function requestAllComments(postId) {
+            return Comment.allForPost(postId);
+        }
 
-        $window.postDetail = vm;
-        $window.Comment = Comment;
-        $window.DSComment = DSComment;
+        function updateViewState(posts) {
+            vm.postComments.all = posts;
+        }
+
+        function buildComments() {
+            vm.commentStream = new rx.BehaviorSubject();
+
+            vm.subscription = vm.commentStream.subscribe(function (newState) {
+                console.log('postDetail: got a new state', newState);
+                updateViewState(newState);
+            }, function (err) {
+                $log.error('postDetail buildSubscriptions error', err);
+            }, function (completed) {
+                $log.error('postDetail subscription completed!?');
+            });
+
+            // get initial state
+            requestAllComments(postId).then(function (initialState) {
+                console.log('got initial state', initialState);
+                vm.commentStream.onNext(initialState);
+            }, function (error) {
+                vm.commentStream.onError(error);
+            });
+        }
+
+        function buildPost() {
+            Post.get(postId).then(function (postInfo) {
+                console.log('got post info', postInfo);
+                vm.postInfo = postInfo;
+            }, function (error) {
+                $log.error('buildPost error', error);
+            });
+        }
 
         function buildSubscriptions() {
-            allPostsStream = Post.all.output.map(function (allPosts) {
-                return _.find(allPosts, { id: postId });
-            }).subscribe(function (newState) {
-                $log.info(fullname + ' got Post ', newState);
-                vm.postInfo = newState;
-            }, function (err) {
-                $log.error(fullname + ' got Post state ERROR #: ', err);
-            }, function (completed) {
-                $log.error(fullname + ' Post COMPLETED', completed);
-            });
-
-            var commentsSource = Comment.allCommentsForPost(postId);
-            commentsSource.bootstrap(postId);
-
-            commentsForPost = commentsSource.output.subscribe(function (next) {
-                if (next) {
-                    $log.info(fullname + ' got Comments ', next);
-                    vm.postComments.all = next;
-                }
-            }, function (err) {
-                $log.error(fullname + ' get Comments error', err);
-            }, function (completed) {
-                $log.error(fullname + ' Comments COMPLETED', completed);
-            });
+            buildComments();
+            buildPost();
         }
 
         vm.newCommentModel = {
@@ -101733,8 +101743,9 @@ module.exports = function (app) {
             return Comment.create(newComment, true).then(function (newlyCreated) {
                 reset();
                 $log.debug('postDetailCtrl: created new comment (id:' + newlyCreated.id + ')');
-            }, function (error) {
-                $log.error('postDetailCtrl: new comment create error:', error);
+                return Comment.allForPost(postId);
+            }).then(function (newState) {
+                vm.commentStream.onNext(newState);
             });
         };
 
@@ -101747,8 +101758,7 @@ module.exports = function (app) {
 
         $scope.$on('$destroy', function () {
             $log.info('destroying postDetailCtrl $scope');
-            allPostsStream.dispose();
-            commentsForPost.dispose();
+            vm.subscription.dispose();
         });
     }
 
@@ -101871,87 +101881,30 @@ var servicename = 'Comment';
 
 module.exports = function (app) {
 
-    var dependencies = ['lodash', 'rx', '$log', app.name + '.Post', app.name + '.DSComment', '$q', 'moment', 'faker', 'MagicStream'];
+    var dependencies = ['lodash', 'rx', '$log', app.name + '.Post', app.name + '.DSComment', '$q', 'moment', 'faker', 'Bluebird'];
 
-    function service(_, rx, $log, Post, DSComment, $q, moment, faker, MagicStream) {
-
-        var knownPosts = {};
-
-        var allComments = new MagicStream({
-            'name': 'Comments',
-            'source': function source(input) {
-                return rx.Observable.fromPromise(DSComment.findAll(null, { bypassCache: true }));
-            }
-        });
-
-        allComments.bootstrap();
-
-        var updateState = function updateState(newest, all) {
-            // $log.debug('updating ' + servicename + ' BehaviourSubject with ', input);
-            allComments.updates.add(all);
-            var parent = newest.post;
-            var id = newest.id;
-            if (parent && _.isString(parent) && knownPosts[parent]) {
-                DSComment.findAll({ 'parentPost': {
-                        '==': parent
-                    } }, { bypassCache: true }).then(function (old) {
-                    old = old || [];
-                    old.push(newest);
-                    return knownPosts[parent].updates.add(old);
-                }, function (error) {
-                    $log.error(error);
-                });
-            }
-        };
+    function service(_, rx, $log, Post, DSComment, $q, moment, faker, BPromise) {
 
         var create = function create(input, createId) {
-            var deferred = $q.defer();
             if (!!input && input.author && input.message && input.parentPost) {
                 if (!!createId) {
                     input.id = faker.random.uuid();
                 }
                 input.createdAt = moment().toJSON();
 
-                DSComment.create(input).then(function (createdComment) {
-                    DSComment.findAll(null, { bypassCache: true }).then(function (newState) {
-                        updateState(createdComment, newState);
-                        deferred.resolve(createdComment);
-                    }, function (error) {
-                        deferred.reject(error);
-                    });
-                }, function (err) {
-                    deferred.reject(err);
-                });
+                return DSComment.create(input);
             } else {
-                deferred.reject('Comment#create: missing/incomplete input');
+                return BPromise.reject('Comment#create: missing/incomplete input');
             }
-            return deferred.promise;
         };
 
         var allCommentsForPost = function allCommentsForPost(postId) {
-
-            var allCommentsForPost = new MagicStream({
-                name: 'Post' + postId + 'Comments',
-                source: function source(params) {
-                    return rx.Observable.fromPromise(DSComment.findAll({
-                        'parentPost': {
-                            '==': params
-                        }
-                    }, { bypassCache: true }));
-                }
-            });
-
-            knownPosts[postId] = allCommentsForPost;
-
-            return allCommentsForPost;
+            return DSComment.findAll({ parentPost: postId }, { bypassCache: true });
         };
 
         return {
             create: create,
-            all: allComments,
-            updateState: updateState,
-            allCommentsForPost: allCommentsForPost,
-            knownPosts: knownPosts
+            allForPost: allCommentsForPost
         };
     }
 
@@ -102187,10 +102140,15 @@ module.exports = function (app) {
             return deferred.promise;
         };
 
+        function getPost(postId, options) {
+            return DSPost.find(postId, { bypassCache: true });
+        }
+
         return {
             create: create,
             all: all,
-            updateState: updateState
+            updateState: updateState,
+            get: getPost
         };
     }
 
@@ -102200,6 +102158,39 @@ module.exports = function (app) {
 
 },{}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/views/home.html":[function(require,module,exports){
 module.exports = '<div class="container">\n' +
+    '    <div class="panel panel-default">\n' +
+    '        <div class="panel-heading">New Post</div>\n' +
+    '        <div class="panel-body">\n' +
+    '                <form ng-submit="homeCtrl.createNewPost(homeCtrl.newPostModel)" class="form-horizontal">\n' +
+    '                  <div class="form-group">\n' +
+    '                    <label for="inputEmail" class="col-sm-2 control-label">Email</label>\n' +
+    '                    <div class="col-sm-10">\n' +
+    '                      <input tabindex="1" type="email" class="form-control" id="inputEmail" placeholder="Email" ng-model="homeCtrl.newPostModel.author">\n' +
+    '                    </div>\n' +
+    '                  </div>\n' +
+    '                  <div class="form-group">\n' +
+    '                    <label for="inputTitle" class="col-sm-2 control-label">Title</label>\n' +
+    '                    <div class="col-sm-10">\n' +
+    '                      <input tabindex="2" type="text" class="form-control" id="inputTitle" placeholder="Title" ng-model="homeCtrl.newPostModel.title">\n' +
+    '                    </div>\n' +
+    '                  </div>\n' +
+    '\n' +
+    '                  <div class="form-group">\n' +
+    '                    <label for="inputMessage" class="col-sm-2 control-label">Message</label>\n' +
+    '                    <div class="col-sm-10">\n' +
+    '                      <textarea tabindex="3" class="form-control" rows="3" id="inputMessage" placeholder="Blah blah blah...." ng-model="homeCtrl.newPostModel.content"></textarea>\n' +
+    '                    </div>\n' +
+    '                  </div>\n' +
+    '\n' +
+    '                  <div class="form-group">\n' +
+    '                    <div class="col-sm-offset-2 col-sm-10">\n' +
+    '                      <button type="submit" tabindex="4" class="btn btn-default btn-block">Create Post</button>\n' +
+    '                    </div>\n' +
+    '                  </div>\n' +
+    '                </form>\n' +
+    '        </div>\n' +
+    '    </div>\n' +
+    '\n' +
     '    <h2>Posts</h2>\n' +
     '    <ul class="list-group" ng-if="homeCtrl.allPosts && homeCtrl.allPosts.length > 0">\n' +
     '      <a class="list-group-item clearfix" ng-repeat="post in homeCtrl.allPosts" ui-sref="viewPost({postId: post.id})">\n' +
@@ -102218,65 +102209,22 @@ module.exports = '<div class="container">\n' +
     '    </div>\n' +
     '\n' +
     '\n' +
-    '    <div class="panel panel-default">\n' +
-    '        <div class="panel-heading">New Post</div>\n' +
-    '        <div class="panel-body">\n' +
-    '                <form ng-submit="homeCtrl.createNewPost(homeCtrl.newPostModel)" class="form-horizontal">\n' +
-    '                  <div class="form-group">\n' +
-    '                    <label for="inputEmail" class="col-sm-2 control-label">Email</label>\n' +
-    '                    <div class="col-sm-10">\n' +
-    '                      <input type="email" class="form-control" id="inputEmail" placeholder="Email" ng-model="homeCtrl.newPostModel.author">\n' +
-    '                    </div>\n' +
-    '                  </div>\n' +
-    '                  <div class="form-group">\n' +
-    '                    <label for="inputTitle" class="col-sm-2 control-label">Title</label>\n' +
-    '                    <div class="col-sm-10">\n' +
-    '                      <input type="text" class="form-control" id="inputTitle" placeholder="Title" ng-model="homeCtrl.newPostModel.title">\n' +
-    '                    </div>\n' +
-    '                  </div>\n' +
     '\n' +
-    '                  <div class="form-group">\n' +
-    '                    <label for="inputMessage" class="col-sm-2 control-label">Message</label>\n' +
-    '                    <div class="col-sm-10">\n' +
-    '                      <textarea class="form-control" rows="3" id="inputMessage" placeholder="Blah blah blah...." ng-model="homeCtrl.newPostModel.content"></textarea>\n' +
-    '                    </div>\n' +
-    '                  </div>\n' +
-    '\n' +
-    '                  <div class="form-group">\n' +
-    '                    <div class="col-sm-offset-2 col-sm-10">\n' +
-    '                      <button type="submit" class="btn btn-default btn-block">Create Post</button>\n' +
-    '                    </div>\n' +
-    '                  </div>\n' +
-    '                </form>\n' +
-    '        </div>\n' +
-    '    </div>\n' +
     '\n' +
     '\n' +
     '\n' +
     '</div>\n' +
     '';
 },{}],"/Users/rai/dev/rx-jsdata-angular-demo/src/scripts/common/views/view-post.html":[function(require,module,exports){
-module.exports = '<div class="container">\n' +
+module.exports = '\n' +
+    '\n' +
+    '<div class="container">\n' +
     '  <div class="jumbotron" ng-if="postDetailCtrl.postInfo">\n' +
     '          <h2>{{postDetailCtrl.postInfo.title}}&nbsp;<small>by {{postDetailCtrl.postInfo.author}}</small></h2>\n' +
     '          <p>{{postDetailCtrl.postInfo.content}}</p>\n' +
     '  </div>\n' +
     '\n' +
-    '  <h3>Comments</h3>\n' +
-    '    <div class="panel panel-warning" ng-if="!postDetailCtrl.postComments.all || postDetailCtrl.postComments.all.length < 1">\n' +
-    '        <div class="panel-heading">No Comments</div>\n' +
-    '        <div class="panel-body">Add something!</div>\n' +
-    '    </div>\n' +
-    '\n' +
-    '    <div ng-if="postDetailCtrl.postComments.all && postDetailCtrl.postComments.all.length > 0">\n' +
-    '      <blockquote ng-repeat="postComment in postDetailCtrl.postComments.all" class="pull-left">\n' +
-    '        <p>{{::postComment.message}}</p>\n' +
-    '        <small>by <cite title="Source Title">{{::postComment.author}}</cite></small>\n' +
-    '      </blockquote>\n' +
-    '    </div>\n' +
-    '\n' +
-    '</div>\n' +
-    '<div class="container">\n' +
+    '  <div class="container">\n' +
     '    <div class="panel panel-default">\n' +
     '        <div class="panel-heading">Post New Comment</div>\n' +
     '        <div class="panel-body">\n' +
@@ -102284,23 +102232,43 @@ module.exports = '<div class="container">\n' +
     '              <div class="form-group">\n' +
     '                <label for="inputEmail" class="col-sm-2 control-label">Email</label>\n' +
     '                <div class="col-sm-10">\n' +
-    '                  <input type="email" ng-model="postDetailCtrl.newCommentModel.author" class="form-control" id="inputEmail" placeholder="Email">\n' +
+    '                  <input tabindex="1" type="email" ng-model="postDetailCtrl.newCommentModel.author" class="form-control" id="inputEmail" placeholder="Email">\n' +
     '                </div>\n' +
     '              </div>\n' +
     '              <div class="form-group">\n' +
     '                <label for="inputMessage" class="col-sm-2 control-label">Comment</label>\n' +
     '                <div class="col-sm-10">\n' +
-    '                  <textarea ng-model="postDetailCtrl.newCommentModel.message" class="form-control" rows="3" id="inputMessage" placeholder="Blah blah blah...."></textarea>\n' +
+    '                  <textarea tabindex="2" ng-model="postDetailCtrl.newCommentModel.message" class="form-control" rows="3" id="inputMessage" placeholder="Blah blah blah...."></textarea>\n' +
     '                </div>\n' +
     '              </div>\n' +
     '\n' +
     '              <div class="form-group">\n' +
     '                <div class="col-sm-offset-2 col-sm-10">\n' +
-    '                  <button type="submit" ng-model="postDetailCtrl.newCommentModel.author" class="btn btn-default btn-block">Comment</button>\n' +
+    '                  <button tabindex="3" type="submit" ng-model="postDetailCtrl.newCommentModel.author" class="btn btn-default btn-block">Comment</button>\n' +
     '                </div>\n' +
     '              </div>\n' +
     '            </form>\n' +
     '        </div>\n' +
+    '    </div>\n' +
+    '\n' +
+    '</div>\n' +
+    '\n' +
+    '\n' +
+    '  <h3>Comments <span class="badge">{{postDetailCtrl.postComments.all.length}}</span></h3>\n' +
+    '    <div class="panel panel-warning" ng-if="!postDetailCtrl.postComments.all || postDetailCtrl.postComments.all.length < 1">\n' +
+    '        <div class="panel-heading">No Comments</div>\n' +
+    '        <div class="panel-body">Add something!</div>\n' +
+    '    </div>\n' +
+    '\n' +
+    '    <div ng-if="postDetailCtrl.postComments.all && postDetailCtrl.postComments.all.length > 0">\n' +
+    '\n' +
+    '        <div ng-repeat="postComment in postDetailCtrl.postComments.all track by postComment.id" class="col-xs-12">\n' +
+    '          <blockquote ng-class-even="\'blockquote-reverse\'">\n' +
+    '            <p>{{::postComment.message}}</p>\n' +
+    '            <small><cite title="comment author">{{::postComment.author}}</cite> at <cite title="comment time">{{::postComment.createdAt | date}}</cite></small>\n' +
+    '          </blockquote>\n' +
+    '        </div>\n' +
+    '\n' +
     '    </div>\n' +
     '\n' +
     '</div>\n' +

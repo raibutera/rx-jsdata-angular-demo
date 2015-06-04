@@ -5,61 +5,70 @@ module.exports = function(app) {
     var fullname = app.name + '.' + controllername;
     /*jshint validthis: true */
 
-    var deps = ['lodash', app.name + '.Post', '$log', '$scope', '$stateParams', app.name + '.Comment', app.name + '.DSComment', '$window'];
+    var deps = ['lodash', app.name + '.Post', '$log', '$scope', '$stateParams', app.name + '.Comment', app.name + '.DSComment', '$window', 'rx'];
 
-    function controller(_, Post, $log, $scope, $stateParams, Comment, DSComment, $window) {
+    function controller(_, Post, $log, $scope, $stateParams, Comment, DSComment, $window, rx) {
         var vm = this;
         vm.controllername = fullname;
 
-        vm.postInfo = {};
         vm.postComments = {
             all: []
         };
 
+        vm.postInfo = {};
+
         var postId = $stateParams.postId;
 
-        var allPostsStream;
-        var commentsForPost;
+        function requestAllComments(postId){
+            return Comment.allForPost(postId);
+        }
 
-        $window.postDetail = vm;
-        $window.Comment = Comment;
-        $window.DSComment = DSComment;
+        function updateViewState(posts){
+            vm.postComments.all = posts;
+        }
 
-        function buildSubscriptions(){
-            allPostsStream = Post.all.output
-            .map(function(allPosts){
-                return _.find(allPosts, {id: postId});
-            })
-            .subscribe(function(newState){
-                            $log.info(fullname + ' got Post ', newState);
-                            vm.postInfo = newState;
-                        },
-                        function(err){
-                            $log.error(fullname + ' got Post state ERROR #: ', err);
-                        },
-                        function(completed){
-                            $log.error(fullname + ' Post COMPLETED', completed);
-                        }
-                    );
+        function buildComments(){
+            vm.commentStream = new rx.BehaviorSubject();
 
-            var commentsSource = Comment.allCommentsForPost(postId);
-            commentsSource.bootstrap(postId);
-
-            commentsForPost = commentsSource.output.subscribe(
-                function(next){
-                    if(next){
-                        $log.info(fullname + ' got Comments ', next);
-                        vm.postComments.all = next;
-                    }
+            vm.subscription = vm.commentStream.subscribe(
+                function(newState){
+                    console.log('postDetail: got a new state', newState);
+                    updateViewState(newState);
                 },
                 function(err){
-                    $log.error(fullname + ' get Comments error', err);
+                    $log.error('postDetail buildSubscriptions error',err);
                 },
                 function(completed){
-                    $log.error(fullname + ' Comments COMPLETED', completed);
+                  $log.error('postDetail subscription completed!?');
                 }
             );
+
+            // get initial state
+            requestAllComments(postId).then(function(initialState) {
+                console.log('got initial state', initialState);
+                vm.commentStream.onNext(initialState);
+            },
+            function(error) {
+                vm.commentStream.onError(error);
+            });
         }
+
+        function buildPost(){
+            Post.get(postId).then(function(postInfo) {
+                console.log('got post info', postInfo);
+              vm.postInfo = postInfo;
+            },
+            function(error) {
+              $log.error('buildPost error', error);
+            });
+        }
+
+        function buildSubscriptions(){
+            buildComments();
+            buildPost();
+        }
+
+
 
 
         vm.newCommentModel = {
@@ -80,9 +89,9 @@ module.exports = function(app) {
             return Comment.create(newComment, true).then(function(newlyCreated) {
                 reset();
                 $log.debug('postDetailCtrl: created new comment (id:' + newlyCreated.id + ')');
-            },
-            function(error) {
-                $log.error('postDetailCtrl: new comment create error:', error);
+                return Comment.allForPost(postId);
+            }).then(function(newState){
+                vm.commentStream.onNext(newState);
             });
         };
 
@@ -95,8 +104,7 @@ module.exports = function(app) {
 
         $scope.$on('$destroy', function(){
             $log.info('destroying postDetailCtrl $scope');
-            allPostsStream.dispose();
-            commentsForPost.dispose();
+            vm.subscription.dispose();
         });
     }
 

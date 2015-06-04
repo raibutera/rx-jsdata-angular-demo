@@ -1,24 +1,12 @@
+
+
 <div class="container">
   <div class="jumbotron" ng-if="postDetailCtrl.postInfo">
           <h2>{{postDetailCtrl.postInfo.title}}&nbsp;<small>by {{postDetailCtrl.postInfo.author}}</small></h2>
           <p>{{postDetailCtrl.postInfo.content}}</p>
   </div>
 
-  <h3>Comments</h3>
-    <div class="panel panel-warning" ng-if="!postDetailCtrl.postComments.all || postDetailCtrl.postComments.all.length < 1">
-        <div class="panel-heading">No Comments</div>
-        <div class="panel-body">Add something!</div>
-    </div>
-
-    <div ng-if="postDetailCtrl.postComments.all && postDetailCtrl.postComments.all.length > 0">
-      <blockquote ng-repeat="postComment in postDetailCtrl.postComments.all" class="pull-left">
-        <p>{{::postComment.message}}</p>
-        <small>by <cite title="Source Title">{{::postComment.author}}</cite></small>
-      </blockquote>
-    </div>
-
-</div>
-<div class="container">
+  <div class="container">
     <div class="panel panel-default">
         <div class="panel-heading">Post New Comment</div>
         <div class="panel-body">
@@ -26,23 +14,43 @@
               <div class="form-group">
                 <label for="inputEmail" class="col-sm-2 control-label">Email</label>
                 <div class="col-sm-10">
-                  <input type="email" ng-model="postDetailCtrl.newCommentModel.author" class="form-control" id="inputEmail" placeholder="Email">
+                  <input tabindex="1" type="email" ng-model="postDetailCtrl.newCommentModel.author" class="form-control" id="inputEmail" placeholder="Email">
                 </div>
               </div>
               <div class="form-group">
                 <label for="inputMessage" class="col-sm-2 control-label">Comment</label>
                 <div class="col-sm-10">
-                  <textarea ng-model="postDetailCtrl.newCommentModel.message" class="form-control" rows="3" id="inputMessage" placeholder="Blah blah blah...."></textarea>
+                  <textarea tabindex="2" ng-model="postDetailCtrl.newCommentModel.message" class="form-control" rows="3" id="inputMessage" placeholder="Blah blah blah...."></textarea>
                 </div>
               </div>
 
               <div class="form-group">
                 <div class="col-sm-offset-2 col-sm-10">
-                  <button type="submit" ng-model="postDetailCtrl.newCommentModel.author" class="btn btn-default btn-block">Comment</button>
+                  <button tabindex="3" type="submit" ng-model="postDetailCtrl.newCommentModel.author" class="btn btn-default btn-block">Comment</button>
                 </div>
               </div>
             </form>
         </div>
+    </div>
+
+</div>
+
+
+  <h3>Comments <span class="badge">{{postDetailCtrl.postComments.all.length}}</span></h3>
+    <div class="panel panel-warning" ng-if="!postDetailCtrl.postComments.all || postDetailCtrl.postComments.all.length < 1">
+        <div class="panel-heading">No Comments</div>
+        <div class="panel-body">Add something!</div>
+    </div>
+
+    <div ng-if="postDetailCtrl.postComments.all && postDetailCtrl.postComments.all.length > 0">
+
+        <div ng-repeat="postComment in postDetailCtrl.postComments.all track by postComment.id" class="col-xs-12">
+          <blockquote ng-class-even="'blockquote-reverse'">
+            <p>{{::postComment.message}}</p>
+            <small><cite title="comment author">{{::postComment.author}}</cite> at <cite title="comment time">{{::postComment.createdAt | date}}</cite></small>
+          </blockquote>
+        </div>
+
     </div>
 
 </div>

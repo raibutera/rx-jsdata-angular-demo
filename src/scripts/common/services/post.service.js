@@ -47,10 +47,15 @@ module.exports = function (app) {
             return deferred.promise;
         };
 
+        function getPost(postId, options){
+            return DSPost.find(postId, {bypassCache: true});
+        }
+
         return {
             create: create,
             all: all,
-            updateState: updateState
+            updateState: updateState,
+            get: getPost
         };
 
     }
